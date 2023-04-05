@@ -1,3 +1,8 @@
+// Copyright 2023-latest the httpland authors. All rights reserved. MIT license.
+// This module is browser compatible.
+
+import { isString } from "./deps.ts";
+
 /** Scanner for character. */
 export class Scanner {
   current: string;
@@ -48,4 +53,14 @@ export function last<T>(input: readonly [...unknown[], T]): T;
 export function last<T>(input: Iterable<T>): T | undefined;
 export function last<T>(input: Iterable<T>): T | undefined {
   return [...input].pop();
+}
+
+export function first<T extends string>(input: `${T}${string}`): T;
+export function first(input: string): string;
+export function first<const T>(input: readonly [T, ...unknown[]]): T;
+export function first<T>(input: Iterable<T>): T | undefined;
+export function first<T>(input: Iterable<T>): T | undefined {
+  const element = [...input][0];
+
+  return isString(input) ? element ?? "" as T : element;
 }

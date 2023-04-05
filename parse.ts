@@ -1,3 +1,6 @@
+// Copyright 2023-latest the httpland authors. All rights reserved. MIT license.
+// This module is browser compatible.
+
 import type {
   BareItem,
   ByteSequence,
@@ -12,7 +15,7 @@ import type {
   Token,
 } from "./types.ts";
 import { decode, isEmpty } from "./deps.ts";
-import { divideBy, divideOf, last, Scanner } from "./utils.ts";
+import { divideBy, divideOf, first, last, Scanner } from "./utils.ts";
 
 type Sfv = Dictionary | Item | List;
 
@@ -198,19 +201,21 @@ export function parseDictionary(input: string): Parsed<Dictionary> {
 }
 
 export function parseBareItem(input: string): Parsed<BareItem> {
-  const first = input[0];
+  const firstEl = first(input);
 
-  if (first === `"`) return parseString(input);
-  if (first === `:`) return parseByteSequence(input);
-  if (first === `?`) return parseBoolean(input);
-  if (/^[\d-]$/.test(first)) return parseIntegerOrDecimal(input);
-  if (/^[A-Za-z*]$/.test(first)) return parseToken(input);
+  if (firstEl === `"`) return parseString(input);
+  if (firstEl === `:`) return parseByteSequence(input);
+  if (firstEl === `?`) return parseBoolean(input);
+  if (/^[\d-]$/.test(firstEl)) return parseIntegerOrDecimal(input);
+  if (/^[A-Za-z*]$/.test(firstEl)) return parseToken(input);
 
   throw SyntaxError();
 }
 
 export function parseToken(input: string): Parsed<Token> {
-  if (!/^[a-zA-Z*]$/.test(input[0])) {
+  const firstEl = first(input);
+
+  if (!/^[a-zA-Z*]$/.test(firstEl)) {
     throw new SyntaxError(`failed to parse ${input} as Token`);
   }
 
@@ -389,10 +394,10 @@ const Relcalpha = /^[a-z]$/;
 const ReKey = /^[a-z\d_.*-]*$/;
 
 export function parseKey(input: string): Parsed<string> {
-  const first = input[0];
+  const firstEl = first(input);
   let outputString = "";
 
-  if (!(first === "*" || Relcalpha.test(first))) throw SyntaxError();
+  if (!(firstEl === "*" || Relcalpha.test(firstEl))) throw SyntaxError();
 
   const scanner = new Scanner(input);
 

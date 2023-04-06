@@ -228,6 +228,14 @@ export function parseDictionary(input: string): Parsed<Dictionary> {
 }
 
 export function parseBareItem(input: string): Parsed<BareItem> {
+  /** Specification:
+   * 1. If the first character of input_string is a "-" or a DIGIT, return the result of running Parsing an Integer or Decimal (Section 4.2.4) with input_string.
+   * 2. If the first character of input_string is a DQUOTE, return the result of running Parsing a String (Section 4.2.5) with input_string.
+   * 3. If the first character of input_string is an ALPHA or "*", return the result of running Parsing a Token (Section 4.2.6) with input_string.
+   * 4. If the first character of input_string is ":", return the result of running Parsing a Byte Sequence (Section 4.2.7) with input_string.
+   * 5. If the first character of input_string is "?", return the result of running Parsing a Boolean (Section 4.2.8) with input_string.
+   * 6. Otherwise, the item type is unrecognized; fail parsing.
+   */
   const firstEl = first(input);
 
   if (firstEl === Char.DQuote) return parseString(input);
@@ -242,6 +250,15 @@ export function parseBareItem(input: string): Parsed<BareItem> {
 }
 
 export function parseToken(input: string): Parsed<Token> {
+  /** Specification:
+   * 1. If the first character of input_string is not ALPHA or "*", fail parsing.
+   * 2. Let output_string be an empty string.
+   * 3. While input_string is not empty:
+   *  1. If the first character of input_string is not in tchar, ":", or "/", return output_string.
+   *  2. Let char be the result of consuming the first character of input_string.
+   *  3. Append char to output_string.
+   * 4. Return output_string.
+   */
   const firstEl = first(input);
 
   if (!(firstEl === Char.Star || reALPHA.test(firstEl))) {
@@ -259,6 +276,22 @@ export function parseToken(input: string): Parsed<Token> {
 }
 
 export function parseString(input: string): Parsed<String> {
+  /** Specification:
+   * 1. Let output_string be an empty string.
+   * 2. If the first character of input_string is not DQUOTE, fail parsing.
+   * 3. Discard the first character of input_string.
+   * 4. While input_string is not empty:
+   *  1. Let char be the result of consuming the first character of input_string.
+   *  2. If char is a backslash ("\"):
+   *    1. If input_string is now empty, fail parsing.
+   *    2. Let next_char be the result of consuming the first character of input_string.
+   *    3. If next_char is not DQUOTE or "\", fail parsing.
+   *    4. Append next_char to output_string.
+   *  3. Else, if char is DQUOTE, return output_string.
+   *  4. Else, if char is in the range %x00-1f or %x7f-ff (i.e., it is not in VCHAR or SP), fail parsing.
+   *  5. Else, append char to output_string.
+   * 5. Reached the end of input_string without finding a closing DQUOTE; fail parsing.
+   */
   const scanner = new Scanner(input);
   const first = scanner.next();
 
@@ -296,15 +329,45 @@ export function parseString(input: string): Parsed<String> {
   throw new Error(`failed to parse ${input} as String`);
 }
 
+const enum Sign {
+  Plus = 1,
+  Minus = -1,
+}
+
 export function parseIntegerOrDecimal(
   input: string,
 ): Parsed<Integer | Decimal> {
+  /** Specification:
+   * 1. Let type be "integer".
+   * 2. Let sign be 1.
+   * 3. Let input_number be an empty string.
+   * 4. If the first character of input_string is "-", consume it and set sign to -1.
+   * 5. If input_string is empty, there is an empty integer; fail parsing.
+   * 6. If the first character of input_string is not a DIGIT, fail parsing.
+   * 7. While input_string is not empty:
+   *  1. Let char be the result of consuming the first character of input_string.
+   *  2. If char is a DIGIT, append it to input_number.
+   *  3. Else, if type is "integer" and char is ".":
+   *    1. If input_number contains more than 12 characters, fail parsing.
+   *    2. Otherwise, append char to input_number and set type to "decimal".
+   *  4. Otherwise, prepend char to input_string, and exit the loop.
+   *  5. If type is "integer" and input_number contains more than 15 characters, fail parsing.
+   *  6. If type is "decimal" and input_number contains more than 16 characters, fail parsing.
+   * 8. If type is "integer":
+   *  1. Parse input_number as an integer and let output_number be the product of the result and sign.
+   * 9. Otherwise:
+   *  1. If the final character of input_number is ".", fail parsing.
+   *  2. If the number of characters after "." in input_number is greater than three, fail parsing.
+   *  3. Parse input_number as a decimal number and let output_number be the product of the result and sign.
+   * 10. Return output_number.
+   */
+
   let type: Kind.Integer | Kind.Decimal = Kind.Integer;
   let input_number = "";
 
   const scanner = new Scanner(input);
   const isMinus = scanner.first === Char.Hyphen;
-  const sign = isMinus ? -1 : 1;
+  const sign = isMinus ? Sign.Minus : Sign.Plus;
 
   if (isMinus) {
     scanner.next();
@@ -380,6 +443,13 @@ export interface Parsed<T> {
  * @param input Any string.
  */
 export function parseBoolean(input: string): Parsed<boolean> {
+  /** Specification:
+   * 1. If the first character of input_string is not "?", fail parsing.
+   * 2. Discard the first character of input_string.
+   * 3. If the first character of input_string matches "1", discard the first character, and return true.
+   * 4. If the first character of input_string matches "0", discard the first character, and return false.
+   * 5. No value has matched; fail parsing.
+   */
   const [first, tail] = divideOf(1, input);
 
   if (first !== Char.Question) throw SyntaxError();
@@ -394,6 +464,17 @@ export function parseBoolean(input: string): Parsed<boolean> {
 }
 
 export function parseByteSequence(input: string): Parsed<ByteSequence> {
+  /** Specification:
+   * 1. If the first character of input_string is not ":", fail parsing.
+   * 2. Discard the first character of input_string.
+   * 3. If there is not a ":" character before the end of input_string, fail parsing.
+   * 4. Let b64_content be the result of consuming content of input_string up to but not including the first instance of the character ":".
+   * 5. Consume the ":" character at the beginning of input_string.
+   * 6. If b64_content contains a character not included in ALPHA, DIGIT, "+", "/", and "=", fail parsing.
+   * 7. Let binary_content be the result of base64-decoding [RFC4648] b64_content, synthesizing padding if necessary (note the requirements about recipient behavior below). If base64 decoding fails, parsing fails.
+   * 8. Return binary_content.
+   */
+
   const scanner = new Scanner(input);
 
   const first = scanner.next();
@@ -419,6 +500,15 @@ export function parseByteSequence(input: string): Parsed<ByteSequence> {
 }
 
 export function parseKey(input: string): Parsed<string> {
+  /** Specification:
+   * 1. If the first character of input_string is not lcalpha or "*", fail parsing.
+   * 2. Let output_string be an empty string.
+   * 3. While input_string is not empty:
+   *  1. If the first character of input_string is not one of lcalpha, DIGIT, "_", "-", ".", or "*", return output_string.
+   *  2. Let char be the result of consuming the first character of input_string.
+   *  3. Append char to output_string.
+   * 4. Return output_string.
+   */
   const firstEl = first(input);
   let outputString = "";
 

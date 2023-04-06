@@ -58,7 +58,7 @@ export function last<T>(input: Iterable<T>): T | undefined {
 
 export function first<T extends string>(input: `${T}${string}`): T;
 export function first(input: string): string;
-export function first<const T>(input: readonly [T, ...unknown[]]): T;
+export function first<T>(input: readonly [T, ...unknown[]]): T;
 export function first<T>(input: Iterable<T>): T | undefined;
 export function first<T>(input: Iterable<T>): T | undefined {
   const element = [...input][0];

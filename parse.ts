@@ -18,7 +18,7 @@ import {
 } from "./types.ts";
 import { decode, isEmpty } from "./deps.ts";
 import { divideBy, first, last, Scanner, trimStart } from "./utils.ts";
-import { Char, FieldType, NumberOfDigits } from "./constants.ts";
+import { Char, FieldType, NumberOfDigits, Sign } from "./constants.ts";
 import {
   reALPHA,
   reBase64Alphabet,
@@ -44,7 +44,7 @@ export function parseSfv(fieldValue: string, fieldType: `${FieldType}`): Sfv {
   const parse = getParser(fieldType);
   const parsed = parse(fieldValue);
 
-  if (trimStart(parsed.rest)) throw SyntaxError();
+  if (trimStart(parsed.rest)) throw SyntaxError(message(fieldValue, fieldType));
 
   return parsed.output;
 }
@@ -62,7 +62,7 @@ function getParser(fieldType: `${FieldType}`) {
     }
 
     default: {
-      throw Error();
+      throw SyntaxError();
     }
   }
 }
@@ -82,6 +82,7 @@ export function parseList(input: string): Parsed<List> {
 
   const scanner = new Scanner(input);
   const members: (Item | InnerList)[] = [];
+  const msg = message.bind(null, input, Kind.List);
 
   while (!isEmpty(scanner.current)) {
     const parsedItemOrInnerList = parseItemOrInnerList(scanner.current);
@@ -96,13 +97,13 @@ export function parseList(input: string): Parsed<List> {
     const first = scanner.next();
 
     if (first !== Char.Comma) {
-      throw new Error(`failed to parse ${input} as List`);
+      throw new SyntaxError(msg());
     }
 
     scanner.current = scanner.current.trimStart();
 
     if (isEmpty(scanner.current) || scanner.current.endsWith(Char.Comma)) {
-      throw new Error(`failed to parse ${input} as List`);
+      throw new SyntaxError(msg());
     }
   }
 
@@ -169,6 +170,7 @@ export function parseDictionary(input: string): Parsed<Dictionary> {
 
   const dictionary = new Map<string, Item | InnerList>();
   const scanner = new Scanner(input);
+  const msg = message.bind(null, input, Kind.Dictionary);
 
   while (!isEmpty(scanner.current)) {
     const parsedKey = parseKey(scanner.current);
@@ -203,14 +205,12 @@ export function parseDictionary(input: string): Parsed<Dictionary> {
 
     const first = scanner.next();
 
-    if (first !== Char.Comma) {
-      throw new Error(`failed to parse ${input} as Dictionary`);
-    }
+    if (first !== Char.Comma) throw SyntaxError(msg());
 
     scanner.current = scanner.current.trimStart();
 
-    if (isEmpty(scanner.current) || scanner.current.endsWith(",")) {
-      throw new Error(`failed to parse ${input} as Dictionary`);
+    if (isEmpty(scanner.current) || scanner.current.endsWith(Char.Comma)) {
+      throw SyntaxError(msg());
     }
   }
 
@@ -239,7 +239,7 @@ export function parseBareItem(input: string): Parsed<BareItem> {
   }
   if (Char.Star === firstEl || reALPHA.test(firstEl)) return parseToken(input);
 
-  throw SyntaxError();
+  throw SyntaxError(message(input, "bare-item"));
 }
 
 export function parseToken(input: string): Parsed<Token> {
@@ -255,7 +255,7 @@ export function parseToken(input: string): Parsed<Token> {
   const firstEl = first(input);
 
   if (!(firstEl === Char.Star || reALPHA.test(firstEl))) {
-    throw new SyntaxError(`failed to parse ${input} as Token`);
+    throw SyntaxError(message(Kind.Token, input));
   }
 
   const re = /^([!#$%&'*+.^_`|~\w:/-]+)/g;
@@ -287,10 +287,9 @@ export function parseString(input: string): Parsed<String> {
    */
   const scanner = new Scanner(input);
   const first = scanner.next();
+  const msg = message.bind(null, input, Kind.String);
 
-  if (first !== Char.DQuote) {
-    throw new Error(`failed to parse ${input} as String`);
-  }
+  if (first !== Char.DQuote) throw SyntaxError(msg());
 
   let outputString = "";
 
@@ -298,33 +297,28 @@ export function parseString(input: string): Parsed<String> {
     const char = scanner.next();
 
     if (char === Char.BackSlash) {
-      if (!scanner.current) throw SyntaxError();
+      if (!scanner.current) throw SyntaxError(msg());
 
       const nextChar = scanner.next();
 
       if (!(nextChar === Char.DQuote || nextChar === Char.BackSlash)) {
-        throw SyntaxError();
+        throw SyntaxError(msg());
       }
 
       outputString += nextChar;
     } else if (char === Char.DQuote) {
       return {
         rest: scanner.current,
-        output: { kind: "string", value: outputString },
+        output: { kind: Kind.String, value: outputString },
       };
     } else if (char !== Char.Space && !reVCHAR.test(char)) {
-      throw new Error(`failed to parse ${input} as String`);
+      throw new SyntaxError(msg());
     } else {
       outputString += char;
     }
   }
 
-  throw new Error(`failed to parse ${input} as String`);
-}
-
-const enum Sign {
-  Plus = 1,
-  Minus = -1,
+  throw new SyntaxError(msg());
 }
 
 export function parseIntegerOrDecimal(
@@ -361,14 +355,19 @@ export function parseIntegerOrDecimal(
   const scanner = new Scanner(input);
   const isMinus = scanner.first === Char.Hyphen;
   const sign = isMinus ? Sign.Minus : Sign.Plus;
+  const messenger = message.bind(null, input);
 
   if (isMinus) {
     scanner.next();
   }
 
-  if (isEmpty(scanner.current)) throw SyntaxError();
+  if (isEmpty(scanner.current)) {
+    throw SyntaxError(messenger(Kind.Integer + " | " + Kind.Dictionary));
+  }
 
-  if (!reDigit.test(scanner.first)) throw SyntaxError();
+  if (!reDigit.test(scanner.first)) {
+    throw SyntaxError(messenger(Kind.Integer + " | " + Kind.Dictionary));
+  }
 
   while (!isEmpty(scanner.current)) {
     const char = scanner.next();
@@ -377,7 +376,7 @@ export function parseIntegerOrDecimal(
       input_number += char;
     } else if (type === Kind.Integer && char === Char.Period) {
       if (NumberOfDigits.MaxIntegerPart < input_number.length) {
-        throw SyntaxError();
+        throw SyntaxError(messenger(Kind.Decimal));
       }
 
       input_number += char;
@@ -390,13 +389,13 @@ export function parseIntegerOrDecimal(
     if (
       type === Kind.Integer && NumberOfDigits.MaxInteger < input_number.length
     ) {
-      throw SyntaxError();
+      throw SyntaxError(messenger(Kind.Integer));
     }
 
     if (
       type === Kind.Decimal && NumberOfDigits.MaxDecimal < input_number.length
     ) {
-      throw SyntaxError();
+      throw SyntaxError(messenger(Kind.Decimal));
     }
   }
 
@@ -409,13 +408,15 @@ export function parseIntegerOrDecimal(
     };
   }
 
-  if (last(input_number) === Char.Period) throw SyntaxError();
+  if (last(input_number) === Char.Period) {
+    throw SyntaxError(messenger(Kind.Integer + " | " + Kind.Dictionary));
+  }
 
   if (
     NumberOfDigits.MaxFractionPart <
       ((divideBy(Char.Period, input_number)?.[1])?.length ?? 0)
   ) {
-    throw SyntaxError();
+    throw SyntaxError(messenger(Kind.Dictionary));
   }
 
   const outputNumber = Number.parseFloat(input_number) * sign;
@@ -445,8 +446,9 @@ export function parseBoolean(input: string): Parsed<boolean> {
    */
   const scanner = new Scanner(input);
   const first = scanner.next();
+  const msg = message.bind(null, input, Kind.Boolean);
 
-  if (first !== Char.Question) throw SyntaxError();
+  if (first !== Char.Question) throw SyntaxError(msg());
 
   const nextChar = scanner.next();
 
@@ -454,7 +456,7 @@ export function parseBoolean(input: string): Parsed<boolean> {
     return { output: Boolean(Number(nextChar)), rest: scanner.current };
   }
 
-  throw SyntaxError();
+  throw SyntaxError(msg());
 }
 
 export function parseByteSequence(input: string): Parsed<ByteSequence> {
@@ -471,18 +473,17 @@ export function parseByteSequence(input: string): Parsed<ByteSequence> {
 
   const scanner = new Scanner(input);
   const first = scanner.next();
+  const msg = message.bind(null, input, Kind.ByteSequence);
 
-  if (first !== Char.Colon) throw SyntaxError();
+  if (first !== Char.Colon) throw SyntaxError(msg());
 
   const result = divideBy(Char.Colon, scanner.current);
 
-  if (!result) throw SyntaxError();
+  if (!result) throw SyntaxError(msg());
 
   const [b64Content, rest] = result;
 
-  if (!reBase64Alphabet.test(b64Content)) {
-    throw new Error("Parsing failed: input string contains invalid characters");
-  }
+  if (!reBase64Alphabet.test(b64Content)) throw SyntaxError(msg());
 
   const binaryContent = decode(b64Content);
 
@@ -503,9 +504,12 @@ export function parseKey(input: string): Parsed<string> {
    * 4. Return output_string.
    */
   const firstEl = first(input);
+  const msg = message.bind(null, input, Kind.Key);
   let outputString = "";
 
-  if (!(firstEl === Char.Star || reLcalpha.test(firstEl))) throw SyntaxError();
+  if (!(firstEl === Char.Star || reLcalpha.test(firstEl))) {
+    throw SyntaxError(msg());
+  }
 
   const scanner = new Scanner(input);
 
@@ -523,10 +527,7 @@ export function parseKey(input: string): Parsed<string> {
     outputString += char;
   }
 
-  return {
-    rest: scanner.current,
-    output: outputString,
-  };
+  return { rest: scanner.current, output: outputString };
 }
 
 /**
@@ -576,10 +577,7 @@ export function parseParameters(input: string): Parsed<Parameters> {
 
     parameters.set(parsedKey.output, paramValue);
   }
-  return {
-    rest: scanner.current,
-    output: Object.fromEntries(parameters),
-  };
+  return { rest: scanner.current, output: Object.fromEntries(parameters) };
 }
 
 export function parseInnerList(input: string): Parsed<InnerList> {
@@ -600,8 +598,9 @@ export function parseInnerList(input: string): Parsed<InnerList> {
 
   const scanner = new Scanner(input);
   const first = scanner.next();
+  const msg = message.bind(null, input, Kind.InnerList);
 
-  if (first !== Char.LParen) throw SyntaxError();
+  if (first !== Char.LParen) throw SyntaxError(msg());
 
   const innerLists: Item[] = [];
 
@@ -625,9 +624,13 @@ export function parseInnerList(input: string): Parsed<InnerList> {
     innerLists.push(parsedItem.output);
 
     if (scanner.first !== Char.Space && scanner.first !== Char.RParen) {
-      throw SyntaxError();
+      throw SyntaxError(msg());
     }
   }
 
-  throw SyntaxError(`failed to parse ${input} as Inner List`);
+  throw SyntaxError(msg());
+}
+
+function message(actual: string, kind: string): string {
+  return `invalid <${kind}> syntax. "${actual}"`;
 }

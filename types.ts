@@ -8,6 +8,10 @@ export const enum Kind {
   Decimal = "decimal",
   ByteSequence = "byte-sequence",
   Boolean = "boolean",
+  List = "list",
+  Dictionary = "dictionary",
+  Key = "key",
+  InnerList = "inner-list",
 }
 
 interface Node {

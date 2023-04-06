@@ -31,3 +31,8 @@ export const enum NumberOfDigits {
   MaxIntegerPart = 12,
   MaxFractionPart = 3,
 }
+
+export const enum Sign {
+  Plus = 1,
+  Minus = -1,
+}

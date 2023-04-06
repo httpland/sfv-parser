@@ -68,3 +68,5 @@ export interface Dictionary {
 export type InnerList = [Item[], Parameters];
 
 export type List = (Item | InnerList)[];
+
+export type Sfv = Dictionary | Item | List;

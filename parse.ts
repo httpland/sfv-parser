@@ -11,21 +11,38 @@ import type {
   Item,
   List,
   Parameters,
+  Sfv,
   String,
   Token,
 } from "./types.ts";
 import { decode, isEmpty } from "./deps.ts";
-import { divideBy, divideOf, first, last, Scanner } from "./utils.ts";
-
-type Sfv = Dictionary | Item | List;
+import {
+  divideBy,
+  divideOf,
+  first,
+  last,
+  Scanner,
+  trimStart,
+} from "./utils.ts";
 
 export function parseSfv(fieldValue: string, fieldType: `${FieldType}`): Sfv {
-  fieldValue = fieldValue.trimStart();
+  /**
+   * 1. Convert input_bytes into an ASCII string input_string; if conversion fails, fail parsing.
+   * 2. Discard any leading SP characters from input_string.
+   * 3. If field_type is "list", let output be the result of running Parsing a List (Section 4.2.1) with input_string.
+   * 4. If field_type is "dictionary", let output be the result of running Parsing a Dictionary (Section 4.2.2) with input_string.
+   * 5. If field_type is "item", let output be the result of running Parsing an Item (Section 4.2.3) with input_string.
+   * 6. Discard any leading SP characters from input_string.
+   * 7. If input_string is not empty, fail parsing.
+   * 8. Otherwise, return output.
+   */
+
+  fieldValue = trimStart(fieldValue);
 
   const parser = getParser(fieldType);
-  const parsed = parser(fieldType);
+  const parsed = parser(fieldValue);
 
-  if (!parsed.rest.trimStart()) throw SyntaxError();
+  if (trimStart(parsed.rest)) throw SyntaxError();
 
   return parsed.output;
 }
@@ -443,7 +460,7 @@ export function parseParameters(input: string): Parsed<Parameters> {
     if (scanner.first !== ";") break;
 
     scanner.next();
-    scanner.current = scanner.current.trimStart();
+    scanner.current = trimStart(scanner.current);
 
     const parsedKey = parseKey(scanner.current);
 
@@ -492,7 +509,7 @@ export function parseInnerList(input: string): Parsed<InnerList> {
 
   const inner_list: Item[] = [];
   while (!isEmpty(scanner.current)) {
-    scanner.current = scanner.current.trimStart();
+    scanner.current = trimStart(scanner.current);
 
     if (scanner.first === ")") {
       scanner.next();

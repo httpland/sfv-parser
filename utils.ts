@@ -64,3 +64,14 @@ export function first<T>(input: Iterable<T>): T | undefined {
 
   return isString(input) ? element ?? "" as T : element;
 }
+
+export function trimStartBy(char: string, input: string): string {
+  const pattern = new RegExp(`^${char}+`);
+
+  return input.replace(pattern, "");
+}
+
+/** Trimming SP(x20) only. */
+export function trimStart(input: string): string {
+  return trimStartBy(" ", input);
+}

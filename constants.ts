@@ -16,10 +16,18 @@ export const enum Char {
   Hyphen = "-",
   Period = ".",
   Star = "*",
+  Underscore = "_",
 }
 
 export const enum FieldType {
   Dictionary = "dictionary",
   List = "list",
   Item = "item",
+}
+
+export const enum NumberOfDigits {
+  MaxInteger = 15,
+  MaxDecimal = 16,
+  MaxIntegerPart = 12,
+  MaxFractionPart = 3,
 }

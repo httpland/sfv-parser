@@ -1,7 +1,7 @@
 // Copyright 2023-latest the httpland authors. All rights reserved. MIT license.
 // This module is browser compatible.
 
-import type {
+import {
   BareItem,
   ByteSequence,
   Decimal,
@@ -9,6 +9,7 @@ import type {
   InnerList,
   Integer,
   Item,
+  Kind,
   List,
   Parameters,
   Sfv,
@@ -24,7 +25,14 @@ import {
   Scanner,
   trimStart,
 } from "./utils.ts";
-import { Char, FieldType } from "./constants.ts";
+import { Char, FieldType, NumberOfDigits } from "./constants.ts";
+import {
+  reALPHA,
+  reBase64Alphabet,
+  reDigit,
+  reLcalpha,
+  reVCHAR,
+} from "./abnf.ts";
 
 export function parseSfv(fieldValue: string, fieldType: `${FieldType}`): Sfv {
   /**
@@ -225,8 +233,10 @@ export function parseBareItem(input: string): Parsed<BareItem> {
   if (firstEl === Char.DQuote) return parseString(input);
   if (firstEl === Char.Colon) return parseByteSequence(input);
   if (firstEl === Char.Question) return parseBoolean(input);
-  if (/^[\d-]$/.test(firstEl)) return parseIntegerOrDecimal(input);
-  if (/^[A-Za-z*]$/.test(firstEl)) return parseToken(input);
+  if (Char.Hyphen === firstEl || reDigit.test(firstEl)) {
+    return parseIntegerOrDecimal(input);
+  }
+  if (Char.Star === firstEl || reALPHA.test(firstEl)) return parseToken(input);
 
   throw SyntaxError();
 }
@@ -234,7 +244,7 @@ export function parseBareItem(input: string): Parsed<BareItem> {
 export function parseToken(input: string): Parsed<Token> {
   const firstEl = first(input);
 
-  if (!/^[a-zA-Z*]$/.test(firstEl)) {
+  if (!(firstEl === Char.Star || reALPHA.test(firstEl))) {
     throw new SyntaxError(`failed to parse ${input} as Token`);
   }
 
@@ -243,7 +253,7 @@ export function parseToken(input: string): Parsed<Token> {
   const rest = input.substring(re.lastIndex);
 
   return {
-    output: { kind: "token", value: output },
+    output: { kind: Kind.Token, value: output },
     rest,
   };
 }
@@ -276,7 +286,7 @@ export function parseString(input: string): Parsed<String> {
         rest: scanner.current,
         output: { kind: "string", value: outputString },
       };
-    } else if (/^[\x00-\x1f\x7f-\xff]$/.test(char)) {
+    } else if (char !== Char.Space && !reVCHAR.test(char)) {
       throw new Error(`failed to parse ${input} as String`);
     } else {
       outputString += char;
@@ -289,7 +299,7 @@ export function parseString(input: string): Parsed<String> {
 export function parseIntegerOrDecimal(
   input: string,
 ): Parsed<Integer | Decimal> {
-  let type: "integer" | "decimal" = "integer";
+  let type: Kind.Integer | Kind.Decimal = Kind.Integer;
   let input_number = "";
 
   const scanner = new Scanner(input);
@@ -302,44 +312,53 @@ export function parseIntegerOrDecimal(
 
   if (isEmpty(scanner.current)) throw SyntaxError();
 
-  const re_integer = /^\d$/;
-
-  if (!re_integer.test(scanner.first)) throw SyntaxError();
+  if (!reDigit.test(scanner.first)) throw SyntaxError();
 
   while (!isEmpty(scanner.current)) {
     const char = scanner.next();
 
-    if (re_integer.test(char)) {
+    if (reDigit.test(char)) {
       input_number += char;
-    } else if (type === "integer" && char === Char.Period) {
-      if (12 < input_number.length) throw SyntaxError();
+    } else if (type === Kind.Integer && char === Char.Period) {
+      if (NumberOfDigits.MaxIntegerPart < input_number.length) {
+        throw SyntaxError();
+      }
 
       input_number += char;
-      type = "decimal";
+      type = Kind.Decimal;
     } else {
       scanner.current = char + scanner.current;
       break;
     }
 
-    if (type === "integer" && 15 < input_number.length) {
+    if (
+      type === Kind.Integer && NumberOfDigits.MaxInteger < input_number.length
+    ) {
       throw SyntaxError();
     }
 
-    if (type === "decimal" && 16 < input_number.length) throw SyntaxError();
+    if (
+      type === Kind.Decimal && NumberOfDigits.MaxDecimal < input_number.length
+    ) {
+      throw SyntaxError();
+    }
   }
 
-  if (type === "integer") {
+  if (type === Kind.Integer) {
     const outputNumber = Number.parseInt(input_number) * sign;
 
     return {
-      output: { kind: "integer", value: outputNumber },
+      output: { kind: Kind.Integer, value: outputNumber },
       rest: scanner.current,
     };
   }
 
   if (last(input_number) === Char.Period) throw SyntaxError();
 
-  if (3 < ((divideBy(Char.Period, input_number)?.[1])?.length ?? 0)) {
+  if (
+    NumberOfDigits.MaxFractionPart <
+      ((divideBy(Char.Period, input_number)?.[1])?.length ?? 0)
+  ) {
     throw SyntaxError();
   }
 
@@ -347,7 +366,7 @@ export function parseIntegerOrDecimal(
 
   return {
     rest: scanner.current,
-    output: { kind: "decimal", value: outputNumber },
+    output: { kind: Kind.Decimal, value: outputNumber },
   };
 }
 
@@ -374,8 +393,6 @@ export function parseBoolean(input: string): Parsed<boolean> {
   throw SyntaxError();
 }
 
-const base64Alphabet = /^[A-Za-z\d+/=]*$/;
-
 export function parseByteSequence(input: string): Parsed<ByteSequence> {
   const scanner = new Scanner(input);
 
@@ -389,7 +406,7 @@ export function parseByteSequence(input: string): Parsed<ByteSequence> {
 
   const [b64Content, rest] = result;
 
-  if (!base64Alphabet.test(b64Content)) {
+  if (!reBase64Alphabet.test(b64Content)) {
     throw new Error("Parsing failed: input string contains invalid characters");
   }
 
@@ -397,26 +414,25 @@ export function parseByteSequence(input: string): Parsed<ByteSequence> {
 
   return {
     rest,
-    output: {
-      kind: "byte-sequence",
-      value: binaryContent,
-    },
+    output: { kind: Kind.ByteSequence, value: binaryContent },
   };
 }
-
-const Relcalpha = /^[a-z]$/;
-const ReKey = /^[a-z\d_.*-]*$/;
 
 export function parseKey(input: string): Parsed<string> {
   const firstEl = first(input);
   let outputString = "";
 
-  if (!(firstEl === Char.Star || Relcalpha.test(firstEl))) throw SyntaxError();
+  if (!(firstEl === Char.Star || reLcalpha.test(firstEl))) throw SyntaxError();
 
   const scanner = new Scanner(input);
 
   while (!isEmpty(scanner.current)) {
-    if (!ReKey.test(scanner.first)) {
+    const first = scanner.first;
+    if (
+      !(Char.Hyphen === first || Char.Period === first || Char.Star === first ||
+        Char.Underscore === first ||
+        reLcalpha.test(first) || reDigit.test(first))
+    ) {
       return { rest: scanner.current, output: outputString };
     }
 

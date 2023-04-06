@@ -24,6 +24,7 @@ import {
   Scanner,
   trimStart,
 } from "./utils.ts";
+import { Char, FieldType } from "./constants.ts";
 
 export function parseSfv(fieldValue: string, fieldType: `${FieldType}`): Sfv {
   /**
@@ -39,8 +40,8 @@ export function parseSfv(fieldValue: string, fieldType: `${FieldType}`): Sfv {
 
   fieldValue = trimStart(fieldValue);
 
-  const parser = getParser(fieldType);
-  const parsed = parser(fieldValue);
+  const parse = getParser(fieldType);
+  const parsed = parse(fieldValue);
 
   if (trimStart(parsed.rest)) throw SyntaxError();
 
@@ -93,13 +94,13 @@ export function parseList(input: string): Parsed<List> {
 
     const first = scanner.next();
 
-    if (first !== ",") {
+    if (first !== Char.Comma) {
       throw new Error(`failed to parse ${input} as List`);
     }
 
     scanner.current = scanner.current.trimStart();
 
-    if (isEmpty(scanner.current) || scanner.current.endsWith(",")) {
+    if (isEmpty(scanner.current) || scanner.current.endsWith(Char.Comma)) {
       throw new Error(`failed to parse ${input} as List`);
     }
   }
@@ -136,7 +137,7 @@ export function parseItemOrInnerList(
    * 1. If the first character of input_string is "(", return the result of running Parsing an Inner List (Section 4.2.1.2) with input_string.
    * 2. Return the result of running Parsing an Item (Section 4.2.3) with input_string.
    */
-  if (input[0] === "(") {
+  if (input[0] === Char.LParen) {
     return parseInnerList(input);
   }
 
@@ -175,7 +176,7 @@ export function parseDictionary(input: string): Parsed<Dictionary> {
 
     const this_key = parsedKey.output;
 
-    if (scanner.first === "=") {
+    if (scanner.first === Char.Eq) {
       scanner.next();
 
       const parsedItemOrInnerList = parseItemOrInnerList(scanner.current);
@@ -200,7 +201,8 @@ export function parseDictionary(input: string): Parsed<Dictionary> {
     }
 
     const first = scanner.next();
-    if (first !== ",") {
+
+    if (first !== Char.Comma) {
       throw new Error(`failed to parse ${input} as Dictionary`);
     }
 
@@ -220,9 +222,9 @@ export function parseDictionary(input: string): Parsed<Dictionary> {
 export function parseBareItem(input: string): Parsed<BareItem> {
   const firstEl = first(input);
 
-  if (firstEl === `"`) return parseString(input);
-  if (firstEl === `:`) return parseByteSequence(input);
-  if (firstEl === `?`) return parseBoolean(input);
+  if (firstEl === Char.DQuote) return parseString(input);
+  if (firstEl === Char.Colon) return parseByteSequence(input);
+  if (firstEl === Char.Question) return parseBoolean(input);
   if (/^[\d-]$/.test(firstEl)) return parseIntegerOrDecimal(input);
   if (/^[A-Za-z*]$/.test(firstEl)) return parseToken(input);
 
@@ -244,11 +246,6 @@ export function parseToken(input: string): Parsed<Token> {
     output: { kind: "token", value: output },
     rest,
   };
-}
-
-const enum Char {
-  DQuote = `"`,
-  BackSlash = "\\",
 }
 
 export function parseString(input: string): Parsed<String> {
@@ -296,7 +293,7 @@ export function parseIntegerOrDecimal(
   let input_number = "";
 
   const scanner = new Scanner(input);
-  const isMinus = scanner.first === "-";
+  const isMinus = scanner.first === Char.Hyphen;
   const sign = isMinus ? -1 : 1;
 
   if (isMinus) {
@@ -314,7 +311,7 @@ export function parseIntegerOrDecimal(
 
     if (re_integer.test(char)) {
       input_number += char;
-    } else if (type === "integer" && char === ".") {
+    } else if (type === "integer" && char === Char.Period) {
       if (12 < input_number.length) throw SyntaxError();
 
       input_number += char;
@@ -340,9 +337,9 @@ export function parseIntegerOrDecimal(
     };
   }
 
-  if (last(input_number) === ".") throw SyntaxError();
+  if (last(input_number) === Char.Period) throw SyntaxError();
 
-  if (3 < ((divideBy(".", input_number)?.[1])?.length ?? 0)) {
+  if (3 < ((divideBy(Char.Period, input_number)?.[1])?.length ?? 0)) {
     throw SyntaxError();
   }
 
@@ -366,7 +363,7 @@ export interface Parsed<T> {
 export function parseBoolean(input: string): Parsed<boolean> {
   const [first, tail] = divideOf(1, input);
 
-  if (first !== "?") throw SyntaxError();
+  if (first !== Char.Question) throw SyntaxError();
 
   const [target, rest] = divideOf(1, tail);
 
@@ -384,9 +381,9 @@ export function parseByteSequence(input: string): Parsed<ByteSequence> {
 
   const first = scanner.next();
 
-  if (first !== ":") throw SyntaxError();
+  if (first !== Char.Colon) throw SyntaxError();
 
-  const result = divideBy(":", scanner.current);
+  const result = divideBy(Char.Colon, scanner.current);
 
   if (!result) throw SyntaxError();
 
@@ -414,7 +411,7 @@ export function parseKey(input: string): Parsed<string> {
   const firstEl = first(input);
   let outputString = "";
 
-  if (!(firstEl === "*" || Relcalpha.test(firstEl))) throw SyntaxError();
+  if (!(firstEl === Char.Star || Relcalpha.test(firstEl))) throw SyntaxError();
 
   const scanner = new Scanner(input);
 
@@ -457,7 +454,7 @@ export function parseParameters(input: string): Parsed<Parameters> {
   const parameters = new Map<string, BareItem>();
 
   while (!isEmpty(scanner.current)) {
-    if (scanner.first !== ";") break;
+    if (scanner.first !== Char.SemiColon) break;
 
     scanner.next();
     scanner.current = trimStart(scanner.current);
@@ -466,7 +463,7 @@ export function parseParameters(input: string): Parsed<Parameters> {
 
     scanner.current = parsedKey.rest;
 
-    const paramValue = scanner.first as string === "="
+    const paramValue = scanner.first as string === Char.Eq
       ? (() => {
         scanner.next();
 
@@ -505,13 +502,13 @@ export function parseInnerList(input: string): Parsed<InnerList> {
   const scanner = new Scanner(input);
   const first = scanner.next();
 
-  if (first !== "(") throw SyntaxError();
+  if (first !== Char.LParen) throw SyntaxError();
 
   const inner_list: Item[] = [];
   while (!isEmpty(scanner.current)) {
     scanner.current = trimStart(scanner.current);
 
-    if (scanner.first === ")") {
+    if (scanner.first === Char.RParen) {
       scanner.next();
 
       const parsedParameters = parseParameters(scanner.current);
@@ -527,14 +524,10 @@ export function parseInnerList(input: string): Parsed<InnerList> {
     scanner.current = parsedItem.rest;
     inner_list.push(parsedItem.output);
 
-    if (scanner.first !== " " && scanner.first !== ")") throw SyntaxError();
+    if (scanner.first !== Char.Space && scanner.first !== Char.RParen) {
+      throw SyntaxError();
+    }
   }
 
   throw SyntaxError(`failed to parse ${input} as Inner List`);
-}
-
-const enum FieldType {
-  Dictionary = "dictionary",
-  List = "list",
-  Item = "item",
 }

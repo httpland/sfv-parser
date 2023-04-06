@@ -17,8 +17,8 @@ import {
   String,
   Token,
 } from "./types.ts";
-import { decode, isEmpty } from "./deps.ts";
-import { divideBy, first, last, Scanner, trimStart } from "./utils.ts";
+import { decode, head, isEmpty, last } from "./deps.ts";
+import { divideBy, Scanner, trimStart } from "./utils.ts";
 import { Char, FieldType, NumberOfDigits, Sign } from "./constants.ts";
 import {
   reALPHA,
@@ -258,15 +258,15 @@ export function parseBareItem(input: string): Parsed<BareItem> {
    * 5. If the first character of input_string is "?", return the result of running Parsing a Boolean (Section 4.2.8) with input_string.
    * 6. Otherwise, the item type is unrecognized; fail parsing.
    */
-  const firstEl = first(input);
+  const first = head(input);
 
-  if (firstEl === Char.DQuote) return parseString(input);
-  if (firstEl === Char.Colon) return parseBinary(input);
-  if (firstEl === Char.Question) return parseBoolean(input);
-  if (Char.Hyphen === firstEl || reDigit.test(firstEl)) {
+  if (first === Char.DQuote) return parseString(input);
+  if (first === Char.Colon) return parseBinary(input);
+  if (first === Char.Question) return parseBoolean(input);
+  if (Char.Hyphen === first || reDigit.test(first)) {
     return parseIntegerOrDecimal(input);
   }
-  if (Char.Star === firstEl || reALPHA.test(firstEl)) return parseToken(input);
+  if (Char.Star === first || reALPHA.test(first)) return parseToken(input);
 
   throw SyntaxError(message(input, "bare-item"));
 }
@@ -281,9 +281,9 @@ export function parseToken(input: string): Parsed<Token> {
    *  3. Append char to output_string.
    * 4. Return output_string.
    */
-  const firstEl = first(input);
+  const first = head(input);
 
-  if (!(firstEl === Char.Star || reALPHA.test(firstEl))) {
+  if (!(first === Char.Star || reALPHA.test(first))) {
     throw SyntaxError(message(Kind.Token, input));
   }
 
@@ -534,11 +534,11 @@ export function parseKey(input: string): Parsed<string> {
    *  3. Append char to output_string.
    * 4. Return output_string.
    */
-  const firstEl = first(input);
+  const first = head(input);
   const msg = message.bind(null, input, "key");
   let outputString = "";
 
-  if (!(firstEl === Char.Star || reLcalpha.test(firstEl))) {
+  if (!(first === Char.Star || reLcalpha.test(first))) {
     throw SyntaxError(msg());
   }
 

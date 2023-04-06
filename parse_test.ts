@@ -32,7 +32,10 @@ describe("parseBoolean", () => {
     ];
 
     table.forEach(([input, expected]) => {
-      assertEquals(parseBoolean(input), expected);
+      assertEquals(parseBoolean(input), {
+        ...expected,
+        output: { kind: "boolean", value: expected.output },
+      });
     });
   });
 
@@ -268,7 +271,7 @@ describe("parseBareItem", () => {
       }],
       [`?0...`, {
         rest: "...",
-        output: false,
+        output: { kind: "boolean", value: false },
       }],
       [`a ...`, {
         rest: " ...",
@@ -323,43 +326,105 @@ describe("parseKey", () => {
   });
 });
 
+const parameters = { kind: "parameters", value: [] } as const;
+
 describe("parseParameters", () => {
   it("should return parsed parameters if the input string is valid", () => {
     const table: [string, Parsed<Parameters>][] = [
-      ["", { rest: "", output: {} }],
-      ["a", { rest: "a", output: {} }],
-      ["abc", { rest: "abc", output: {} }],
-      [";a", { rest: "", output: { a: true } }],
-      ["; a", { rest: "", output: { a: true } }],
-      [";a =", { rest: " =", output: { a: true } }],
-      [";a?", { rest: "?", output: { a: true } }],
-      ["; a=?0", { rest: "", output: { a: false } }],
-      [";*=?0", { rest: "", output: { "*": false } }],
-      [";*=?1", { rest: "", output: { "*": true } }],
-      [";*=1-", { rest: "-", output: { "*": { kind: "integer", value: 1 } } }],
+      ["", { rest: "", output: parameters }],
+      ["a", { rest: "a", output: parameters }],
+      ["abc", { rest: "abc", output: parameters }],
+      [";a", {
+        rest: "",
+        output: {
+          kind: "parameters",
+          value: [["a", { kind: "boolean", value: true }]],
+        },
+      }],
+      ["; a", {
+        rest: "",
+        output: {
+          kind: "parameters",
+          value: [["a", { kind: "boolean", value: true }]],
+        },
+      }],
+      [";a =", {
+        rest: " =",
+        output: {
+          kind: "parameters",
+          value: [["a", { kind: "boolean", value: true }]],
+        },
+      }],
+      [";a?", {
+        rest: "?",
+        output: {
+          kind: "parameters",
+          value: [["a", { kind: "boolean", value: true }]],
+        },
+      }],
+      ["; a=?0", {
+        rest: "",
+        output: {
+          kind: "parameters",
+          value: [["a", { kind: "boolean", value: false }]],
+        },
+      }],
+      [";*=?0", {
+        rest: "",
+        output: {
+          kind: "parameters",
+          value: [["*", { kind: "boolean", value: false }]],
+        },
+      }],
+      [";*=?1", {
+        rest: "",
+        output: {
+          kind: "parameters",
+          value: [["*", { kind: "boolean", value: true }]],
+        },
+      }],
+      [";*=1-", {
+        rest: "-",
+        output: {
+          kind: "parameters",
+          value: [["*", { kind: "integer", value: 1 }]],
+        },
+      }],
       [";*=100", {
         rest: "",
-        output: { "*": { kind: "integer", value: 100 } },
+        output: {
+          kind: "parameters",
+          value: [["*", { kind: "integer", value: 100 }]],
+        },
       }],
       [";*=100.0 ", {
         rest: " ",
-        output: { "*": { kind: "decimal", value: 100 } },
+        output: {
+          kind: "parameters",
+          value: [["*", { kind: "decimal", value: 100 }]],
+        },
       }],
       [`;*="abc"`, {
         rest: "",
-        output: { "*": { kind: "string", value: "abc" } },
+        output: {
+          kind: "parameters",
+          value: [["*", { kind: "string", value: "abc" }]],
+        },
       }],
       [`;a="abc"; b=::; c=abc`, {
         rest: "",
         output: {
-          a: { kind: "string", value: "abc" },
-          b: { kind: "byte-sequence", value: new Uint8Array() },
-          c: { kind: "token", value: "abc" },
+          kind: "parameters",
+          value: [
+            ["a", { kind: "string", value: "abc" }],
+            ["b", { kind: "byte-sequence", value: new Uint8Array() }],
+            ["c", { kind: "token", value: "abc" }],
+          ],
         },
       }],
       [` ;a="abc"; b=::; c=abc`, {
         rest: ` ;a="abc"; b=::; c=abc`,
-        output: {},
+        output: parameters,
       }],
     ];
 
@@ -385,23 +450,68 @@ describe("parseParameters", () => {
 describe("parseItem", () => {
   it("should return parsed item if the input string is valid", () => {
     const table: [string, Parsed<Item>][] = [
-      ["1", { rest: "", output: [{ kind: "integer", value: 1 }, {}] }],
-      ["1.0a", { rest: "a", output: [{ kind: "decimal", value: 1 }, {}] }],
-      ["1.0 ;", { rest: " ;", output: [{ kind: "decimal", value: 1 }, {}] }],
+      ["1", {
+        rest: "",
+        output: {
+          kind: "item",
+          value: [{ kind: "integer", value: 1 }, parameters],
+        },
+      }],
+      ["1.0a", {
+        rest: "a",
+        output: {
+          kind: "item",
+          value: [{ kind: "decimal", value: 1 }, parameters],
+        },
+      }],
+      ["1.0 ;", {
+        rest: " ;",
+        output: {
+          kind: "item",
+          value: [{ kind: "decimal", value: 1 }, parameters],
+        },
+      }],
       ["1.0;a", {
         rest: "",
-        output: [{ kind: "decimal", value: 1 }, { a: true }],
+        output: {
+          kind: "item",
+          value: [
+            { kind: "decimal", value: 1 },
+            {
+              kind: "parameters",
+              value: [["a", { kind: "boolean", value: true }]],
+            },
+          ],
+        },
       }],
       ["a;a=?0", {
         rest: "",
-        output: [{ kind: "token", value: "a" }, { a: false }],
+        output: {
+          kind: "item",
+          value: [
+            { kind: "token", value: "a" },
+            {
+              kind: "parameters",
+              value: [["a", { kind: "boolean", value: false }]],
+            },
+          ],
+        },
       }],
       [`a;*=?1; a="test" ;b`, {
         rest: " ;b",
-        output: [{ kind: "token", value: "a" }, {
-          "*": true,
-          a: { kind: "string", value: "test" },
-        }],
+        output: {
+          kind: "item",
+          value: [
+            { kind: "token", value: "a" },
+            {
+              kind: "parameters",
+              value: [
+                ["*", { kind: "boolean", value: true }],
+                ["a", { kind: "string", value: "test" }],
+              ],
+            },
+          ],
+        },
       }],
     ];
 
@@ -426,46 +536,115 @@ describe("parseItem", () => {
 describe("parseInnerList", () => {
   it("should return parsed inner list if the input string is valid", () => {
     const table: [string, Parsed<InnerList>][] = [
-      ["()", { rest: "", output: [[], {}] }],
-      ["( )", { rest: "", output: [[], {}] }],
-      ["()abc", { rest: "abc", output: [[], {}] }],
+      ["()", {
+        rest: "",
+        output: { kind: "inner-list", value: [[], parameters] },
+      }],
+      ["( )", {
+        rest: "",
+        output: { kind: "inner-list", value: [[], parameters] },
+      }],
+      ["()abc", {
+        rest: "abc",
+        output: { kind: "inner-list", value: [[], parameters] },
+      }],
       ["(a)", {
         rest: "",
-        output: [[[{ kind: "token", value: "a" }, {}]], {}],
+        output: {
+          kind: "inner-list",
+          value: [
+            [{
+              kind: "item",
+              value: [{ kind: "token", value: "a" }, parameters],
+            }],
+            parameters,
+          ],
+        },
       }],
 
       ["(1.0 1)", {
         rest: "",
-        output: [[
-          [{ kind: "decimal", value: 1 }, {}],
-          [{ kind: "integer", value: 1 }, {}],
-        ], {}],
+        output: {
+          kind: "inner-list",
+          value: [
+            [
+              {
+                kind: "item",
+                value: [{ kind: "decimal", value: 1 }, parameters],
+              },
+              {
+                kind: "item",
+                value: [{ kind: "integer", value: 1 }, parameters],
+              },
+            ],
+            parameters,
+          ],
+        },
       }],
       [`( 1.1 1  "a")...`, {
         rest: "...",
-        output: [[
-          [{ kind: "decimal", value: 1.1 }, {}],
-          [{ kind: "integer", value: 1 }, {}],
-          [{ kind: "string", value: "a" }, {}],
-        ], {}],
+        output: {
+          kind: "inner-list",
+          value: [[
+            {
+              kind: "item",
+              value: [{ kind: "decimal", value: 1.1 }, parameters],
+            },
+            {
+              kind: "item",
+              value: [{ kind: "integer", value: 1 }, parameters],
+            },
+            {
+              kind: "item",
+              value: [{ kind: "string", value: "a" }, parameters],
+            },
+          ], parameters],
+        },
       }],
       [`( 1.1; a; b=b 1  "a" )...`, {
         rest: "...",
-        output: [[
-          [{ kind: "decimal", value: 1.1 }, {
-            a: true,
-            b: { kind: "token", value: "b" },
-          }],
-          [{ kind: "integer", value: 1 }, {}],
-          [{ kind: "string", value: "a" }, {}],
-        ], {}],
+        output: {
+          kind: "inner-list",
+          value: [[
+            {
+              kind: "item",
+              value: [
+                { kind: "decimal", value: 1.1 },
+                {
+                  kind: "parameters",
+                  value: [
+                    ["a", { kind: "boolean", value: true }],
+                    ["b", { kind: "token", value: "b" }],
+                  ],
+                },
+              ],
+            },
+            {
+              kind: "item",
+              value: [{ kind: "integer", value: 1 }, parameters],
+            },
+            {
+              kind: "item",
+              value: [{ kind: "string", value: "a" }, parameters],
+            },
+          ], parameters],
+        },
       }],
       [`(  );*;abc=d ...`, {
         rest: " ...",
-        output: [[], {
-          "*": true,
-          abc: { kind: "token", value: "d" },
-        }],
+        output: {
+          kind: "inner-list",
+          value: [
+            [],
+            {
+              kind: "parameters",
+              value: [
+                ["*", { kind: "boolean", value: true }],
+                ["abc", { kind: "token", value: "d" }],
+              ],
+            },
+          ],
+        },
       }],
     ];
 
@@ -492,44 +671,119 @@ describe("parseInnerList", () => {
 describe("parseList", () => {
   it("should return parsed inner list if the input string is valid", () => {
     const table: [string, Parsed<List>][] = [
-      ["", { rest: "", output: [] }],
-      ["a", { rest: "", output: [[{ kind: "token", value: "a" }, {}]] }],
+      ["", { rest: "", output: { kind: "list", value: [] } }],
+      ["a", {
+        rest: "",
+        output: {
+          kind: "list",
+          value: [{
+            kind: "item",
+            value: [{ kind: "token", value: "a" }, parameters],
+          }],
+        },
+      }],
       ["a, b,c ", {
         rest: "",
-        output: [
-          [{ kind: "token", value: "a" }, {}],
-          [{ kind: "token", value: "b" }, {}],
-          [{ kind: "token", value: "c" }, {}],
-        ],
+        output: {
+          kind: "list",
+          value: [
+            {
+              kind: "item",
+              value: [{ kind: "token", value: "a" }, parameters],
+            },
+            {
+              kind: "item",
+              value: [{ kind: "token", value: "b" }, parameters],
+            },
+            {
+              kind: "item",
+              value: [{ kind: "token", value: "c" }, parameters],
+            },
+          ],
+        },
       }],
       [`(), ()`, {
         rest: "",
-        output: [
-          [[], {}],
-          [[], {}],
-        ],
+        output: {
+          kind: "list",
+          value: [
+            { kind: "inner-list", value: [[], parameters] },
+            { kind: "inner-list", value: [[], parameters] },
+          ],
+        },
       }],
       [`();a;b;c`, {
         rest: "",
-        output: [
-          [[], { a: true, b: true, c: true }],
-        ],
+        output: {
+          kind: "list",
+          value: [
+            {
+              kind: "inner-list",
+              value: [
+                [],
+                {
+                  kind: "parameters",
+                  value: [
+                    ["a", { kind: "boolean", value: true }],
+                    ["b", { kind: "boolean", value: true }],
+                    ["c", { kind: "boolean", value: true }],
+                  ],
+                },
+              ],
+            },
+          ],
+        },
       }],
       [`"abc", token;a=100, ("def" token;a=?0);a=?0`, {
         rest: "",
-        output: [
-          [{ kind: "string", value: "abc" }, {}],
-          [{ kind: "token", value: "token" }, {
-            a: { kind: "integer", value: 100 },
-          }],
-          [
-            [
-              [{ kind: "string", value: "def" }, {}],
-              [{ kind: "token", value: "token" }, { a: false }],
-            ],
-            { a: false },
+        output: {
+          kind: "list",
+          value: [
+            {
+              kind: "item",
+              value: [{ kind: "string", value: "abc" }, parameters],
+            },
+            {
+              kind: "item",
+              value: [
+                { kind: "token", value: "token" },
+                {
+                  kind: "parameters",
+                  value: [
+                    ["a", { kind: "integer", value: 100 }],
+                  ],
+                },
+              ],
+            },
+            {
+              kind: "inner-list",
+              value: [
+                [
+                  {
+                    kind: "item",
+                    value: [{ kind: "string", value: "def" }, parameters],
+                  },
+                  {
+                    kind: "item",
+                    value: [
+                      { kind: "token", value: "token" },
+                      {
+                        kind: "parameters",
+                        value: [
+                          ["a", { kind: "boolean", value: false }],
+                        ],
+                      },
+                    ],
+                  },
+                ],
+                {
+                  kind: "parameters",
+                  value: [["a", { kind: "boolean", value: false }]],
+                },
+              ],
+            },
           ],
-        ],
+        },
       }],
     ];
 
@@ -560,36 +814,87 @@ describe("parseList", () => {
 describe("parseDictionary", () => {
   it("should return parsed dictionary if the input string is valid", () => {
     const table: [string, Parsed<Dictionary>][] = [
-      ["", { rest: "", output: {} }],
-      ["a", { rest: "", output: { a: [true, {}] } }],
-      ["a=a", { rest: "", output: { a: [{ kind: "token", value: "a" }, {}] } }],
+      ["", { rest: "", output: { kind: "dictionary", value: [] } }],
+      ["a", {
+        rest: "",
+        output: {
+          kind: "dictionary",
+          value: [["a", {
+            kind: "item",
+            value: [
+              { kind: "boolean", value: true },
+              parameters,
+            ],
+          }]],
+        },
+      }],
+      ["a=a", {
+        rest: "",
+        output: {
+          kind: "dictionary",
+          value: [["a", {
+            kind: "item",
+            value: [{ kind: "token", value: "a" }, parameters],
+          }]],
+        },
+      }],
       ["a=(), b=(c d;e f;g=h i;j=k; l=n);m", {
         rest: "",
         output: {
-          a: [[], {}],
-          b: [
-            [
-              [
-                { kind: "token", value: "c" },
-                {},
-              ],
-              [
-                { kind: "token", value: "d" },
-                { e: true },
-              ],
-              [
-                { kind: "token", value: "f" },
-                { g: { kind: "token", value: "h" } },
-              ],
-              [
-                { kind: "token", value: "i" },
+          kind: "dictionary",
+          value: [
+            ["a", { kind: "inner-list", value: [[], parameters] }],
+            ["b", {
+              kind: "inner-list",
+              value: [
+                [
+                  {
+                    kind: "item",
+                    value: [
+                      { kind: "token", value: "c" },
+                      parameters,
+                    ],
+                  },
+                  {
+                    kind: "item",
+                    value: [
+                      { kind: "token", value: "d" },
+                      {
+                        kind: "parameters",
+                        value: [["e", { kind: "boolean", value: true }]],
+                      },
+                    ],
+                  },
+                  {
+                    kind: "item",
+                    value: [
+                      { kind: "token", value: "f" },
+                      {
+                        kind: "parameters",
+                        value: [["g", { kind: "token", value: "h" }]],
+                      },
+                    ],
+                  },
+                  {
+                    kind: "item",
+                    value: [
+                      { kind: "token", value: "i" },
+                      {
+                        kind: "parameters",
+                        value: [
+                          ["j", { kind: "token", value: "k" }],
+                          ["l", { kind: "token", value: "n" }],
+                        ],
+                      },
+                    ],
+                  },
+                ],
                 {
-                  j: { kind: "token", value: "k" },
-                  l: { kind: "token", value: "n" },
+                  kind: "parameters",
+                  value: [["m", { kind: "boolean", value: true }]],
                 },
               ],
-            ],
-            { m: true },
+            }],
           ],
         },
       }],

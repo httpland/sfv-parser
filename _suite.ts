@@ -97,7 +97,7 @@ export function format(input: Test.BareItem): BareItem {
     return { kind: "decimal", value: input };
   }
 
-  if (isBoolean(input)) return input;
+  if (isBoolean(input)) return { kind: "boolean", value: input };
 
   switch (input[`__type`]) {
     case "binary":
@@ -135,11 +135,11 @@ export function formatItem([value, params]: Test.Item): Item {
   const bareItem = format(value);
   const parameters = formatParams(params);
 
-  return [bareItem, parameters];
+  return { kind: "item", value: [bareItem, parameters] };
 }
 
 export function formatList(expected: Test.List): List {
-  return expected.map(formatItemOrInnerList);
+  return { kind: "list", value: expected.map(formatItemOrInnerList) };
 }
 
 export function formatDictionary(
@@ -148,10 +148,10 @@ export function formatDictionary(
   const dictionary = expected.map(([key, values]) => {
     const itemOrInnerList = formatItemOrInnerList(values);
 
-    return [key, itemOrInnerList] as const;
+    return [key, itemOrInnerList] as [string, Item | InnerList];
   });
 
-  return Object.fromEntries(dictionary);
+  return { kind: "dictionary", value: dictionary };
 }
 
 function formatItemOrInnerList(
@@ -168,7 +168,7 @@ function formatInnerList(innerList: Test.InnerList): InnerList {
   const items = innerList[0].map(formatItem);
   const parameters = formatParams(innerList[1]);
 
-  return [items, parameters];
+  return { kind: "inner-list", value: [items, parameters] };
 }
 
 function isInnerList(
@@ -178,5 +178,8 @@ function isInnerList(
 }
 
 function formatParams(params: Test.Parameters): Parameters {
-  return Object.fromEntries(params.map(([key, value]) => [key, format(value)]));
+  return {
+    kind: "parameters",
+    value: params.map(([key, value]) => [key, format(value)]),
+  };
 }

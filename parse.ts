@@ -3,6 +3,7 @@
 
 import {
   BareItem,
+  Boolean,
   ByteSequence,
   Decimal,
   Dictionary,
@@ -27,6 +28,19 @@ import {
   reVCHAR,
 } from "./abnf.ts";
 
+export function parseSfv(
+  filedValue: string,
+  fieldType: `${FieldType.Item}`,
+): Item;
+export function parseSfv(
+  filedValue: string,
+  fieldType: `${FieldType.List}`,
+): List;
+export function parseSfv(
+  filedValue: string,
+  fieldType: `${FieldType.Dictionary}`,
+): Dictionary;
+export function parseSfv(fieldValue: string, fieldType: `${FieldType}`): Sfv;
 export function parseSfv(fieldValue: string, fieldType: `${FieldType}`): Sfv {
   /**
    * 1. Convert input_bytes into an ASCII string input_string; if conversion fails, fail parsing.
@@ -91,7 +105,10 @@ export function parseList(input: string): Parsed<List> {
     scanner.current = parsedItemOrInnerList.rest.trimStart();
 
     if (isEmpty(scanner.current)) {
-      return { rest: scanner.current, output: members };
+      return {
+        rest: scanner.current,
+        output: { kind: Kind.List, value: members },
+      };
     }
 
     const first = scanner.next();
@@ -109,7 +126,7 @@ export function parseList(input: string): Parsed<List> {
 
   return {
     rest: scanner.current,
-    output: [],
+    output: { kind: Kind.List, value: [] },
   };
 }
 
@@ -128,7 +145,10 @@ export function parseItem(input: string): Parsed<Item> {
 
   return {
     rest: parsedParameters.rest,
-    output: [parsedBareItem.output, parsedParameters.output],
+    output: {
+      kind: Kind.Item,
+      value: [parsedBareItem.output, parsedParameters.output],
+    },
   };
 }
 
@@ -177,7 +197,7 @@ export function parseDictionary(input: string): Parsed<Dictionary> {
 
     scanner.current = parsedKey.rest;
 
-    const this_key = parsedKey.output;
+    const key = parsedKey.output;
 
     if (scanner.first === Char.Eq) {
       scanner.next();
@@ -188,19 +208,28 @@ export function parseDictionary(input: string): Parsed<Dictionary> {
 
       const member = parsedItemOrInnerList.output;
 
-      dictionary.set(this_key, member);
+      dictionary.set(key, member);
     } else {
       const parsedParameters = parseParameters(scanner.current);
 
       scanner.current = parsedParameters.rest;
 
-      dictionary.set(this_key, [true, parsedParameters.output]);
+      dictionary.set(key, {
+        kind: Kind.Item,
+        value: [
+          { kind: Kind.Boolean, value: true },
+          parsedParameters.output,
+        ],
+      });
     }
 
     scanner.current = scanner.current.trimStart();
 
     if (isEmpty(scanner.current)) {
-      return { rest: scanner.current, output: Object.fromEntries(dictionary) };
+      return {
+        rest: scanner.current,
+        output: { kind: Kind.Dictionary, value: [...dictionary] },
+      };
     }
 
     const first = scanner.next();
@@ -216,7 +245,7 @@ export function parseDictionary(input: string): Parsed<Dictionary> {
 
   return {
     rest: scanner.current,
-    output: Object.fromEntries(dictionary),
+    output: { kind: Kind.Dictionary, value: [...dictionary] },
   };
 }
 
@@ -436,7 +465,7 @@ export interface Parsed<T> {
 /**
  * @param input Any string.
  */
-export function parseBoolean(input: string): Parsed<boolean> {
+export function parseBoolean(input: string): Parsed<Boolean> {
   /** Specification:
    * 1. If the first character of input_string is not "?", fail parsing.
    * 2. Discard the first character of input_string.
@@ -453,7 +482,9 @@ export function parseBoolean(input: string): Parsed<boolean> {
   const nextChar = scanner.next();
 
   if (nextChar === "1" || nextChar === "0") {
-    return { output: Boolean(Number(nextChar)), rest: scanner.current };
+    const value = nextChar === "0" ? false : true;
+
+    return { output: { kind: Kind.Boolean, value }, rest: scanner.current };
   }
 
   throw SyntaxError(msg());
@@ -504,7 +535,7 @@ export function parseKey(input: string): Parsed<string> {
    * 4. Return output_string.
    */
   const firstEl = first(input);
-  const msg = message.bind(null, input, Kind.Key);
+  const msg = message.bind(null, input, "key");
   let outputString = "";
 
   if (!(firstEl === Char.Star || reLcalpha.test(firstEl))) {
@@ -530,9 +561,8 @@ export function parseKey(input: string): Parsed<string> {
   return { rest: scanner.current, output: outputString };
 }
 
-/**
- * @returns
- */
+const TRUE = { kind: Kind.Boolean, value: true } as const;
+
 export function parseParameters(input: string): Parsed<Parameters> {
   /** Specification:
    * 1. Let parameters be an empty, ordered map.
@@ -573,11 +603,14 @@ export function parseParameters(input: string): Parsed<Parameters> {
 
         return parsed.output;
       })()
-      : true;
+      : TRUE;
 
     parameters.set(parsedKey.output, paramValue);
   }
-  return { rest: scanner.current, output: Object.fromEntries(parameters) };
+  return {
+    rest: scanner.current,
+    output: { kind: Kind.Parameters, value: [...parameters] },
+  };
 }
 
 export function parseInnerList(input: string): Parsed<InnerList> {
@@ -613,7 +646,10 @@ export function parseInnerList(input: string): Parsed<InnerList> {
       const parsedParameters = parseParameters(scanner.current);
 
       return {
-        output: [innerLists, parsedParameters.output],
+        output: {
+          kind: Kind.InnerList,
+          value: [innerLists, parsedParameters.output],
+        },
         rest: parsedParameters.rest,
       };
     }

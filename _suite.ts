@@ -102,7 +102,7 @@ export function format(input: Test.BareItem): BareItem {
   switch (input[`__type`]) {
     case "binary":
       return {
-        kind: "byte-sequence",
+        kind: "binary",
         value: decode(input.value),
       };
 

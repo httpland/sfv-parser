@@ -6,7 +6,7 @@ export const enum Kind {
   Token = "token",
   Integer = "integer",
   Decimal = "decimal",
-  ByteSequence = "byte-sequence",
+  Binary = "binary",
   Boolean = "boolean",
   List = "list",
   Item = "item",
@@ -53,8 +53,8 @@ export class Decimal implements SfNode {
   constructor(public readonly value: number) {}
 }
 
-export class ByteSequence implements SfNode {
-  readonly kind: `${Kind.ByteSequence}` = Kind.ByteSequence;
+export class Binary implements SfNode {
+  readonly kind: `${Kind.Binary}` = Kind.Binary;
 
   constructor(public readonly value: Uint8Array) {}
 }
@@ -104,7 +104,7 @@ export type BareItem =
   | Token
   | Integer
   | Decimal
-  | ByteSequence;
+  | Binary;
 
 /** Structured field values. */
 export type Sfv = Dictionary | Item | List;

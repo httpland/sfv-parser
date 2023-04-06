@@ -1,7 +1,7 @@
 import {
   parseBareItem,
+  parseBinary,
   parseBoolean,
-  parseByteSequence,
   Parsed,
   parseDictionary,
   parseInnerList,
@@ -237,9 +237,9 @@ describe("parseByteSequence", () => {
     ];
 
     table.forEach(([input, expected]) => {
-      assertEquals(parseByteSequence(input), {
+      assertEquals(parseBinary(input), {
         rest: expected.rest,
-        output: { kind: "byte-sequence", value: expected.output },
+        output: { kind: "binary", value: expected.output },
       });
     });
   });
@@ -255,7 +255,7 @@ describe("parseByteSequence", () => {
     ];
 
     table.forEach((input) => {
-      assertThrows(() => parseByteSequence(input));
+      assertThrows(() => parseBinary(input));
     });
   });
 });
@@ -417,7 +417,7 @@ describe("parseParameters", () => {
           kind: "parameters",
           value: [
             ["a", { kind: "string", value: "abc" }],
-            ["b", { kind: "byte-sequence", value: new Uint8Array() }],
+            ["b", { kind: "binary", value: new Uint8Array() }],
             ["c", { kind: "token", value: "abc" }],
           ],
         },

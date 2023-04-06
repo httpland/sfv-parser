@@ -3,8 +3,8 @@
 
 import {
   BareItem,
+  Binary,
   Boolean,
-  ByteSequence,
   Decimal,
   Dictionary,
   InnerList,
@@ -261,7 +261,7 @@ export function parseBareItem(input: string): Parsed<BareItem> {
   const firstEl = first(input);
 
   if (firstEl === Char.DQuote) return parseString(input);
-  if (firstEl === Char.Colon) return parseByteSequence(input);
+  if (firstEl === Char.Colon) return parseBinary(input);
   if (firstEl === Char.Question) return parseBoolean(input);
   if (Char.Hyphen === firstEl || reDigit.test(firstEl)) {
     return parseIntegerOrDecimal(input);
@@ -490,7 +490,7 @@ export function parseBoolean(input: string): Parsed<Boolean> {
   throw SyntaxError(msg());
 }
 
-export function parseByteSequence(input: string): Parsed<ByteSequence> {
+export function parseBinary(input: string): Parsed<Binary> {
   /** Specification:
    * 1. If the first character of input_string is not ":", fail parsing.
    * 2. Discard the first character of input_string.
@@ -504,7 +504,7 @@ export function parseByteSequence(input: string): Parsed<ByteSequence> {
 
   const scanner = new Scanner(input);
   const first = scanner.next();
-  const msg = message.bind(null, input, Kind.ByteSequence);
+  const msg = message.bind(null, input, Kind.Binary);
 
   if (first !== Char.Colon) throw SyntaxError(msg());
 
@@ -520,7 +520,7 @@ export function parseByteSequence(input: string): Parsed<ByteSequence> {
 
   return {
     rest,
-    output: { kind: Kind.ByteSequence, value: binaryContent },
+    output: { kind: Kind.Binary, value: binaryContent },
   };
 }
 

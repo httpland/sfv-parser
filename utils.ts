@@ -2,6 +2,7 @@
 // This module is browser compatible.
 
 import { isString } from "./deps.ts";
+import { Char } from "./constants.ts";
 
 /** Scanner for character. */
 export class Scanner {
@@ -19,7 +20,7 @@ export class Scanner {
   }
 
   get first(): string {
-    return this.current[0] ?? "";
+    return first(this.current);
   }
 }
 
@@ -73,5 +74,5 @@ export function trimStartBy(char: string, input: string): string {
 
 /** Trimming SP(x20) only. */
 export function trimStart(input: string): string {
-  return trimStartBy(" ", input);
+  return trimStartBy(Char.Space, input);
 }

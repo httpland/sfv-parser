@@ -17,14 +17,7 @@ import {
   Token,
 } from "./types.ts";
 import { decode, isEmpty } from "./deps.ts";
-import {
-  divideBy,
-  divideOf,
-  first,
-  last,
-  Scanner,
-  trimStart,
-} from "./utils.ts";
+import { divideBy, first, last, Scanner, trimStart } from "./utils.ts";
 import { Char, FieldType, NumberOfDigits } from "./constants.ts";
 import {
   reALPHA,
@@ -450,14 +443,15 @@ export function parseBoolean(input: string): Parsed<boolean> {
    * 4. If the first character of input_string matches "0", discard the first character, and return false.
    * 5. No value has matched; fail parsing.
    */
-  const [first, tail] = divideOf(1, input);
+  const scanner = new Scanner(input);
+  const first = scanner.next();
 
   if (first !== Char.Question) throw SyntaxError();
 
-  const [target, rest] = divideOf(1, tail);
+  const nextChar = scanner.next();
 
-  if (target === "1" || target === "0") {
-    return { output: Boolean(Number(target)), rest };
+  if (nextChar === "1" || nextChar === "0") {
+    return { output: Boolean(Number(nextChar)), rest: scanner.current };
   }
 
   throw SyntaxError();
@@ -476,7 +470,6 @@ export function parseByteSequence(input: string): Parsed<ByteSequence> {
    */
 
   const scanner = new Scanner(input);
-
   const first = scanner.next();
 
   if (first !== Char.Colon) throw SyntaxError();
@@ -610,7 +603,8 @@ export function parseInnerList(input: string): Parsed<InnerList> {
 
   if (first !== Char.LParen) throw SyntaxError();
 
-  const inner_list: Item[] = [];
+  const innerLists: Item[] = [];
+
   while (!isEmpty(scanner.current)) {
     scanner.current = trimStart(scanner.current);
 
@@ -620,7 +614,7 @@ export function parseInnerList(input: string): Parsed<InnerList> {
       const parsedParameters = parseParameters(scanner.current);
 
       return {
-        output: [inner_list, parsedParameters.output],
+        output: [innerLists, parsedParameters.output],
         rest: parsedParameters.rest,
       };
     }
@@ -628,7 +622,7 @@ export function parseInnerList(input: string): Parsed<InnerList> {
     const parsedItem = parseItem(scanner.current);
 
     scanner.current = parsedItem.rest;
-    inner_list.push(parsedItem.output);
+    innerLists.push(parsedItem.output);
 
     if (scanner.first !== Char.Space && scanner.first !== Char.RParen) {
       throw SyntaxError();

@@ -67,6 +67,10 @@ export function numberOfDigits(input: number): number {
   return Math.abs(Math.trunc(input)).toString().length;
 }
 
+export function decimalPlaces(input: number): number {
+  return divideBy(Char.Period, input.toString())?.[1]?.length ?? 0;
+}
+
 export function displayDecimal(input: Decimal): string {
   return `Decimal(${input.value})`;
 }

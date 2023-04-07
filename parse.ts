@@ -17,13 +17,14 @@ import {
   Token,
 } from "./types.ts";
 import { decode, head, isEmpty, last } from "./deps.ts";
-import { divideBy, Scanner, trimStart } from "./utils.ts";
+import { decimalPlaces, divideBy, Scanner, trimStart } from "./utils.ts";
 import { Bool, Char, Kind, Msg, NumberOfDigits, Sign } from "./constants.ts";
 import {
   reALPHA,
   reBase64Alphabet,
   reDigit,
   reLcalpha,
+  reTchar,
   reVCHAR,
 } from "./abnf.ts";
 
@@ -276,19 +277,34 @@ export function parseToken(input: string): Parsed<Token> {
    *  3. Append char to output_string.
    * 4. Return output_string.
    */
-  const first = head(input);
+  const scanner = new Scanner(input);
 
-  if (!(first === Char.Star || reALPHA.test(first))) {
+  if (!(scanner.first === Char.Star || reALPHA.test(scanner.first))) {
     throw SyntaxError(message(Kind.Token, input));
   }
 
-  const re = /^([!#$%&'*+.^_`|~\w:/-]+)/g;
-  const output = re.exec(input)?.[1] ?? "";
-  const rest = input.substring(re.lastIndex);
+  let output = "";
+
+  while (!isEmpty(scanner.current)) {
+    const first = scanner.first;
+
+    if (
+      !(Char.Colon === first || Char.Slash === first || reTchar.test(first))
+    ) {
+      return {
+        output: { kind: Kind.Token, value: output },
+        rest: scanner.current,
+      };
+    }
+
+    const char = scanner.next();
+
+    output += char;
+  }
 
   return {
     output: { kind: Kind.Token, value: output },
-    rest,
+    rest: scanner.current,
   };
 }
 
@@ -437,8 +453,7 @@ export function parseIntegerOrDecimal(
   }
 
   if (
-    NumberOfDigits.MaxFractionPart <
-      ((divideBy(Char.Period, input_number)?.[1])?.length ?? 0)
+    NumberOfDigits.MaxFractionPart < decimalPlaces(Number(input_number))
   ) {
     throw SyntaxError(messenger(Kind.Dictionary));
   }

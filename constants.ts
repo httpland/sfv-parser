@@ -21,12 +21,6 @@ export const enum Char {
   Separator = `, `,
 }
 
-export const enum FieldType {
-  Dictionary = "dictionary",
-  List = "list",
-  Item = "item",
-}
-
 export const enum NumberOfDigits {
   MaxInteger = 15,
   MaxDecimal = 16,

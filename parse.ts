@@ -18,14 +18,7 @@ import {
 } from "./types.ts";
 import { decode, head, isEmpty, last } from "./deps.ts";
 import { divideBy, Scanner, trimStart } from "./utils.ts";
-import {
-  Bool,
-  Char,
-  FieldType,
-  Kind,
-  NumberOfDigits,
-  Sign,
-} from "./constants.ts";
+import { Bool, Char, Kind, NumberOfDigits, Sign } from "./constants.ts";
 import {
   reALPHA,
   reBase64Alphabet,
@@ -34,17 +27,13 @@ import {
   reVCHAR,
 } from "./abnf.ts";
 
+export type FieldType = Kind.List | Kind.Item | Kind.Dictionary;
+
+export function parseSfv(filedValue: string, fieldType: `${Kind.Item}`): Item;
+export function parseSfv(filedValue: string, fieldType: `${Kind.List}`): List;
 export function parseSfv(
   filedValue: string,
-  fieldType: `${FieldType.Item}`,
-): Item;
-export function parseSfv(
-  filedValue: string,
-  fieldType: `${FieldType.List}`,
-): List;
-export function parseSfv(
-  filedValue: string,
-  fieldType: `${FieldType.Dictionary}`,
+  fieldType: `${Kind.Dictionary}`,
 ): Dictionary;
 export function parseSfv(fieldValue: string, fieldType: `${FieldType}`): Sfv;
 export function parseSfv(fieldValue: string, fieldType: `${FieldType}`): Sfv {
@@ -71,13 +60,13 @@ export function parseSfv(fieldValue: string, fieldType: `${FieldType}`): Sfv {
 
 function getParser(fieldType: `${FieldType}`) {
   switch (fieldType) {
-    case FieldType.Dictionary: {
+    case Kind.Dictionary: {
       return parseDictionary;
     }
-    case FieldType.Item: {
+    case Kind.Item: {
       return parseItem;
     }
-    case FieldType.List: {
+    case Kind.List: {
       return parseList;
     }
 

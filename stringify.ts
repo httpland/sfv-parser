@@ -155,6 +155,7 @@ export function stringifyBoolean(input: Boolean): string {
 
 export function stringifyString(input: String): string {
   let output: string = Char.DQuote;
+
   for (const char of input.value) {
     if (!(Char.Space === char || reVCHAR.test(char))) {
       throw TypeError();

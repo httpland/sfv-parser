@@ -6,6 +6,7 @@ import {
   stringifyInteger,
   stringifyItem,
   stringifyParameters,
+  stringifyString,
   stringifyToken,
 } from "./stringify.ts";
 import { assertEquals, assertThrows, describe, it, Kind } from "./_dev_deps.ts";
@@ -145,6 +146,36 @@ describe("stringifyDecimal", () => {
       assertThrows(() =>
         stringifyDecimal({ kind: Kind.Decimal, value: input })
       );
+    });
+  });
+});
+
+describe("stringifyString", () => {
+  it("should return string if the input is valid decimal", () => {
+    const table: [string, string][] = [
+      ["", `""`],
+      ["abc", `"abc"`],
+      ["\\abc", `"\\\\abc"`],
+      [`"abc`, `"\\"abc"`],
+      [` `, `" "`],
+    ];
+
+    table.forEach(([input, expected]) => {
+      assertEquals(
+        stringifyString({ kind: Kind.String, value: input }),
+        expected,
+      );
+    });
+  });
+
+  it("should throw error if the input is invalid string", () => {
+    const table: string[] = [
+      "\t",
+      "\x00",
+    ];
+
+    table.forEach((input) => {
+      assertThrows(() => stringifyString({ kind: Kind.String, value: input }));
     });
   });
 });

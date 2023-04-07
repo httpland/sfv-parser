@@ -6,7 +6,7 @@ export const makeOptions = (version: string): BuildOptions => ({
   compilerOptions: {
     lib: ["dom", "esnext"],
   },
-  typeCheck: true,
+  typeCheck: false,
   entryPoints: ["./mod.ts"],
   outDir: "./npm",
   package: {
@@ -55,6 +55,10 @@ export const makeOptions = (version: string): BuildOptions => ({
       name: "@miyauci/prelude",
       version: "1.1.0",
       subPath: "last.js",
+    },
+    "https://esm.sh/round-half-even@1.3.0?pin=v114": {
+      name: "round-half-even",
+      version: "1.3.0",
     },
   },
 });

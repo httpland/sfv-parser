@@ -3,6 +3,7 @@
 
 import { Char } from "./constants.ts";
 import { head } from "./deps.ts";
+import { type Decimal, Integer, Kind, SfNode, Token } from "./types.ts";
 
 /** Scanner for character. */
 export class Scanner {
@@ -59,4 +60,38 @@ export function trimStartBy(char: string, input: string): string {
 /** Trimming SP(x20) only. */
 export function trimStart(input: string): string {
   return trimStartBy(Char.Space, input);
+}
+
+/** Return number of digits. */
+export function numberOfDigits(input: number): number {
+  return Math.abs(Math.trunc(input)).toString().length;
+}
+
+export function displayDecimal(input: Decimal): string {
+  return `Decimal(${input.value})`;
+}
+
+export function displayToken(input: Token): string {
+  return `Token("${input.value}")`;
+}
+
+export function displayInteger(input: Integer): string {
+  return `Integer(${input.value})`;
+}
+
+export function displayKey(input: string): string {
+  return `key of "${input}"`;
+}
+
+export function toDecimalFormat(input: number): string {
+  const str = input.toString();
+  if (Number.isInteger(input)) return str + ".0";
+
+  return str;
+}
+
+export function isTrue(
+  input: SfNode,
+): input is { kind: Kind.Boolean; value: true } {
+  return input.kind === Kind.Boolean && input.value === true;
 }

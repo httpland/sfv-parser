@@ -17,6 +17,8 @@ export const enum Char {
   Period = ".",
   Star = "*",
   Underscore = "_",
+  Slash = "/",
+  Separator = `, `,
 }
 
 export const enum FieldType {
@@ -35,4 +37,9 @@ export const enum NumberOfDigits {
 export const enum Sign {
   Plus = 1,
   Minus = -1,
+}
+
+export const enum Bool {
+  False = "0",
+  True = "1",
 }

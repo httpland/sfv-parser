@@ -15,6 +15,10 @@
     "https://cdn.jsdelivr.net/gh/httpwg/structured-field-tests/param-dict.json": "3dcc8fc0977072d542e34f13dcfe5fe22e520a5abc2220f86ffcbbcc8b409bdb",
     "https://cdn.jsdelivr.net/gh/httpwg/structured-field-tests/param-list.json": "849a0c00f4ee8572b734b2c29023a8b3a4bcea865deabcd8a7318312af0dbdf1",
     "https://cdn.jsdelivr.net/gh/httpwg/structured-field-tests/param-listlist.json": "fde5860376f2be0d2d497fb2e2c5a36ee2bdace0ecfc511ba474ec14e6852321",
+    "https://cdn.jsdelivr.net/gh/httpwg/structured-field-tests/serialisation-tests/key-generated.json": "864259576064498dbd9ed72a84a4a099d2a79f9d28d5b9aa8915a4ea49e5c424",
+    "https://cdn.jsdelivr.net/gh/httpwg/structured-field-tests/serialisation-tests/number.json": "6fd9be050b10f724524027207e8e261c75a7c9338a1f4a3bcbb3e3ee514e15c9",
+    "https://cdn.jsdelivr.net/gh/httpwg/structured-field-tests/serialisation-tests/string-generated.json": "035b53c08a706ce401a3b0e0ebc13bf6090edefc14747089f13bf6ad66e6d822",
+    "https://cdn.jsdelivr.net/gh/httpwg/structured-field-tests/serialisation-tests/token-generated.json": "1f4db75952490df9b7ef17f71f745275482f3cb36e34527c3c1ca434f7e3d868",
     "https://cdn.jsdelivr.net/gh/httpwg/structured-field-tests/string-generated.json": "99c4d3dac05e0452a0b8bee2b6b1d78898cfb6ccda2cc34aa6d1fcf1dfd2864a",
     "https://cdn.jsdelivr.net/gh/httpwg/structured-field-tests/string.json": "743d743bf37eac4f2c6d440e349cd4ba758b3f42fda98e772f538ca6564a40ee",
     "https://cdn.jsdelivr.net/gh/httpwg/structured-field-tests/token-generated.json": "084582d7c82dbe4e83873d98ed640e5a414e0d5af191f8103a7af1b6cee19222",
@@ -34,6 +38,8 @@
     "https://deno.land/x/isx@1.1.1/iterable/is_empty.ts": "bda353aa1255b997f56a34f93e4000559a8fe556e9d660464aaa97af2bf26b74",
     "https://deno.land/x/prelude_js@1.1.0/deps.ts": "4f59609c3bd00576fdbf618df45e433b4f6e862c2c905a442d9564be20fae322",
     "https://deno.land/x/prelude_js@1.1.0/head.ts": "53e188166d21f10be1d008183095cf8a633e99546fddb4424afe2f26af22bdd2",
-    "https://deno.land/x/prelude_js@1.1.0/last.ts": "ddbc1001730493881edfc1f57ba7ee3c0c205e9bbe2d4ee8447f2bfa33fcfbe7"
+    "https://deno.land/x/prelude_js@1.1.0/last.ts": "ddbc1001730493881edfc1f57ba7ee3c0c205e9bbe2d4ee8447f2bfa33fcfbe7",
+    "https://esm.sh/round-half-even@1.3.0?pin=v114": "bce59066abcdf85641ab5c7eef056dea3e2bc576b493ace793b2537facaba554",
+    "https://esm.sh/v114/round-half-even@1.3.0/deno/round-half-even.mjs": "310a2342bd2d1f13b68d23766fbac29023f33a2d7d5b20c0ea5c78b716c37763"
   }
 }

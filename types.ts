@@ -21,6 +21,8 @@ interface Node {
 
 export interface SfNode extends Node {
   readonly kind: `${Kind}`;
+
+  readonly value: unknown
 }
 
 export class Boolean implements SfNode {

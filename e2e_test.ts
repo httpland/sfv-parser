@@ -1,4 +1,5 @@
 import { convert, Failure, Success } from "./_suite.ts";
+
 import token from "https://cdn.jsdelivr.net/gh/httpwg/structured-field-tests/token.json" assert {
   type: "json",
 };
@@ -54,9 +55,23 @@ import keyGenerated from "https://cdn.jsdelivr.net/gh/httpwg/structured-field-te
 import examples from "https://cdn.jsdelivr.net/gh/httpwg/structured-field-tests/examples.json" assert {
   type: "json",
 };
+import serializationTokenGenerated from "https://cdn.jsdelivr.net/gh/httpwg/structured-field-tests/serialisation-tests/token-generated.json" assert {
+  type: "json",
+};
+import serializationStringGenerated from "https://cdn.jsdelivr.net/gh/httpwg/structured-field-tests/serialisation-tests/string-generated.json" assert {
+  type: "json",
+};
+import serializationNumber from "https://cdn.jsdelivr.net/gh/httpwg/structured-field-tests/serialisation-tests/number.json" assert {
+  type: "json",
+};
+import serializationKeyGenerated from "https://cdn.jsdelivr.net/gh/httpwg/structured-field-tests/serialisation-tests/key-generated.json" assert {
+  type: "json",
+};
+
 import { partition } from "https://deno.land/std@0.182.0/collections/partition.ts";
 import { assertEquals, assertThrows, describe, it } from "./_dev_deps.ts";
 import { parseSfv } from "./parse.ts";
+import { stringifySfv } from "./stringify.ts";
 
 const suites = [
   token,
@@ -84,6 +99,7 @@ const [success, failure] = partition(
   (suite) => "expected" in suite,
 ) as unknown as [Success[], Failure[]];
 
+// Decimals what is 0 padding become integers when they become JavaScript objects.
 const ignoreNames = [
   "fractional 0 decimal",
   "missing parameter value parameterised list",
@@ -95,8 +111,6 @@ const ignoreNames = [
 
 describe("success test case", () => {
   success.forEach((suite) => {
-    // Decimals what is 0 padding become integers when they become JavaScript objects.
-
     const ignore = ignoreNames.some((v) => suite.name.includes(v));
 
     it(suite.name, { ignore: ignore }, () => {
@@ -112,6 +126,42 @@ describe("failure test case", () => {
   failure.forEach((suite) => {
     it(suite.name, () => {
       assertThrows(() => parseSfv(suite.raw.join(), suite.header_type));
+    });
+  });
+});
+
+const serializationSuites = [
+  serializationTokenGenerated,
+  serializationStringGenerated,
+  serializationNumber,
+  serializationKeyGenerated,
+  ...suites,
+].flat();
+
+describe("serialization", () => {
+  serializationSuites.forEach((suite) => {
+    const ignore = ignoreNames.some((v) => suite.name.includes(v));
+    it(suite.name, { ignore }, () => {
+      if (!suite.expected) return;
+
+      // deno-lint-ignore no-explicit-any
+      const sfv = convert(suite as any);
+
+      if (("must_fail" in suite && suite.must_fail)) {
+        assertThrows(() => stringifySfv(sfv));
+      } else if ("canonical" in suite && Array.isArray(suite.canonical)) {
+        const expected = suite.canonical.join("");
+
+        if ("can_fail" in suite) {
+          try {
+            assertEquals(stringifySfv(sfv), expected);
+          } catch {
+            // noop
+          }
+        } else {
+          assertEquals(stringifySfv(sfv), expected);
+        }
+      }
     });
   });
 });

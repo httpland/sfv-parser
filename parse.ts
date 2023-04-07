@@ -18,7 +18,16 @@ import {
 } from "./types.ts";
 import { decode, head, isEmpty, last } from "./deps.ts";
 import { decimalPlaces, divideBy, Scanner, trimStart } from "./utils.ts";
-import { Bool, Char, Kind, Msg, NumberOfDigits, Sign } from "./constants.ts";
+import {
+  Bool,
+  Char,
+  Kind,
+  Msg,
+  NumberOfDigits,
+  Sign,
+  SubKind,
+  TRUE,
+} from "./constants.ts";
 import {
   reALPHA,
   reBase64Alphabet,
@@ -77,6 +86,7 @@ export function getParser(fieldType: `${FieldType}`) {
   }
 }
 
+/** Parse string into {@link List}. */
 export function parseList(input: string): Parsed<List> {
   /** Specification:
    * 1. Let members be an empty array.
@@ -126,6 +136,7 @@ export function parseList(input: string): Parsed<List> {
   };
 }
 
+/** Parse string into {@link Item}. */
 export function parseItem(input: string): Parsed<Item> {
   /** Specification:
    * 1. Let bare_item be the result of running Parsing a Bare Item (Section 4.2.3.1) with input_string.
@@ -148,6 +159,7 @@ export function parseItem(input: string): Parsed<Item> {
   };
 }
 
+/** Parse string into {@link Item} or {@link InnerList}. */
 export function parseItemOrInnerList(
   input: string,
 ): Parsed<Item | InnerList> {
@@ -162,6 +174,7 @@ export function parseItemOrInnerList(
   return parseItem(input);
 }
 
+/** Parse string into {@link Dictionary}. */
 export function parseDictionary(input: string): Parsed<Dictionary> {
   /** Specification:
    * 1. Let dictionary be an empty, ordered map.
@@ -212,10 +225,7 @@ export function parseDictionary(input: string): Parsed<Dictionary> {
 
       dictionary.set(key, {
         kind: Kind.Item,
-        value: [
-          { kind: Kind.Boolean, value: true },
-          parsedParameters.output,
-        ],
+        value: [TRUE, parsedParameters.output],
       });
     }
 
@@ -245,6 +255,7 @@ export function parseDictionary(input: string): Parsed<Dictionary> {
   };
 }
 
+/** Parse string into {@link BareItem}. */
 export function parseBareItem(input: string): Parsed<BareItem> {
   /** Specification:
    * 1. If the first character of input_string is a "-" or a DIGIT, return the result of running Parsing an Integer or Decimal (Section 4.2.4) with input_string.
@@ -264,9 +275,10 @@ export function parseBareItem(input: string): Parsed<BareItem> {
   }
   if (Char.Star === first || reALPHA.test(first)) return parseToken(input);
 
-  throw SyntaxError(message(input, "bare-item"));
+  throw SyntaxError(message(input, SubKind.BareItem));
 }
 
+/** Parse string into {@link Token}. */
 export function parseToken(input: string): Parsed<Token> {
   /** Specification:
    * 1. If the first character of input_string is not ALPHA or "*", fail parsing.
@@ -308,6 +320,7 @@ export function parseToken(input: string): Parsed<Token> {
   };
 }
 
+/** Parse string into {@link String}. */
 export function parseString(input: string): Parsed<String> {
   /** Specification:
    * 1. Let output_string be an empty string.
@@ -361,6 +374,7 @@ export function parseString(input: string): Parsed<String> {
   throw new SyntaxError(msg());
 }
 
+/** Parse string into {@link Integer} or {@link Decimal}. */
 export function parseIntegerOrDecimal(
   input: string,
 ): Parsed<Integer | Decimal> {
@@ -472,9 +486,7 @@ export interface Parsed<T> {
   readonly output: T;
 }
 
-/**
- * @param input Any string.
- */
+/** Parse string into {@link Boolean}. */
 export function parseBoolean(input: string): Parsed<Boolean> {
   /** Specification:
    * 1. If the first character of input_string is not "?", fail parsing.
@@ -500,6 +512,7 @@ export function parseBoolean(input: string): Parsed<Boolean> {
   throw SyntaxError(msg());
 }
 
+/** Parse string into {@link Binary}. */
 export function parseBinary(input: string): Parsed<Binary> {
   /** Specification:
    * 1. If the first character of input_string is not ":", fail parsing.
@@ -534,6 +547,7 @@ export function parseBinary(input: string): Parsed<Binary> {
   };
 }
 
+/** Parse string into string. */
 export function parseKey(input: string): Parsed<string> {
   /** Specification:
    * 1. If the first character of input_string is not lcalpha or "*", fail parsing.
@@ -545,7 +559,7 @@ export function parseKey(input: string): Parsed<string> {
    * 4. Return output_string.
    */
   const first = head(input);
-  const msg = message.bind(null, input, "key");
+  const msg = message.bind(null, input, SubKind.Key);
   let outputString = "";
 
   if (!(first === Char.Star || reLcalpha.test(first))) {
@@ -571,8 +585,7 @@ export function parseKey(input: string): Parsed<string> {
   return { rest: scanner.current, output: outputString };
 }
 
-const TRUE = { kind: Kind.Boolean, value: true } as const;
-
+/** Parse string into {@link Parameters}. */
 export function parseParameters(input: string): Parsed<Parameters> {
   /** Specification:
    * 1. Let parameters be an empty, ordered map.
@@ -623,6 +636,7 @@ export function parseParameters(input: string): Parsed<Parameters> {
   };
 }
 
+/** Parse string into {@link InnerList}. */
 export function parseInnerList(input: string): Parsed<InnerList> {
   /** Specification:
    * 1. Consume the first character of input_string; if it is not "(", fail parsing.

@@ -56,3 +56,10 @@ export const enum Kind {
 export const enum Msg {
   Unreachable = "unreachable",
 }
+
+export const TRUE = { kind: Kind.Boolean, value: true } as const;
+
+export const enum SubKind {
+  BareItem = "bare-item",
+  Key = "key",
+}

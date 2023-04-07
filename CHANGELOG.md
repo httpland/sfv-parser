@@ -1,3 +1,11 @@
+# [1.0.0-beta.3](https://github.com/httpland/sfv-parser/compare/1.0.0-beta.2...1.0.0-beta.3) (2023-04-07)
+
+
+### Features
+
+* **mod:** export related types ([8bbe5fd](https://github.com/httpland/sfv-parser/commit/8bbe5fd6d2cd76d5532117f9ffcd0fa13af1bf3b))
+* **types:** improve type constructor argument ([6c2d65a](https://github.com/httpland/sfv-parser/commit/6c2d65ac40908292f046b42339ac5a23306d84d3))
+
 # [1.0.0-beta.2](https://github.com/httpland/sfv-parser/compare/1.0.0-beta.1...1.0.0-beta.2) (2023-04-07)
 
 

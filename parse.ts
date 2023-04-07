@@ -21,11 +21,11 @@ import { decimalPlaces, divideBy, Scanner, trimStart } from "./utils.ts";
 import {
   Bool,
   Char,
-  Kind,
+  Type,
   Msg,
   NumberOfDigits,
   Sign,
-  SubKind,
+  SubType,
   TRUE,
 } from "./constants.ts";
 import {
@@ -37,13 +37,13 @@ import {
   reVCHAR,
 } from "./abnf.ts";
 
-export type FieldType = Kind.List | Kind.Item | Kind.Dictionary;
+export type FieldType = Type.List | Type.Item | Type.Dictionary;
 
-export function parseSfv(filedValue: string, fieldType: `${Kind.Item}`): Item;
-export function parseSfv(filedValue: string, fieldType: `${Kind.List}`): List;
+export function parseSfv(filedValue: string, fieldType: `${Type.Item}`): Item;
+export function parseSfv(filedValue: string, fieldType: `${Type.List}`): List;
 export function parseSfv(
   filedValue: string,
-  fieldType: `${Kind.Dictionary}`,
+  fieldType: `${Type.Dictionary}`,
 ): Dictionary;
 export function parseSfv(fieldValue: string, fieldType: `${FieldType}`): Sfv;
 export function parseSfv(fieldValue: string, fieldType: `${FieldType}`): Sfv {
@@ -70,13 +70,13 @@ export function parseSfv(fieldValue: string, fieldType: `${FieldType}`): Sfv {
 
 export function getParser(fieldType: `${FieldType}`) {
   switch (fieldType) {
-    case Kind.Dictionary: {
+    case Type.Dictionary: {
       return parseDictionary;
     }
-    case Kind.Item: {
+    case Type.Item: {
       return parseItem;
     }
-    case Kind.List: {
+    case Type.List: {
       return parseList;
     }
 
@@ -102,7 +102,7 @@ export function parseList(input: string): Parsed<List> {
 
   const scanner = new Scanner(input);
   const members: (Item | InnerList)[] = [];
-  const msg = message.bind(null, input, Kind.List);
+  const msg = message.bind(null, input, Type.List);
 
   while (!isEmpty(scanner.current)) {
     const parsedItemOrInnerList = parseItemOrInnerList(scanner.current);
@@ -113,7 +113,7 @@ export function parseList(input: string): Parsed<List> {
     if (isEmpty(scanner.current)) {
       return {
         rest: scanner.current,
-        output: { kind: Kind.List, value: members },
+        output: { type: Type.List, value: members },
       };
     }
 
@@ -132,7 +132,7 @@ export function parseList(input: string): Parsed<List> {
 
   return {
     rest: scanner.current,
-    output: { kind: Kind.List, value: [] },
+    output: { type: Type.List, value: [] },
   };
 }
 
@@ -153,7 +153,7 @@ export function parseItem(input: string): Parsed<Item> {
   return {
     rest: parsedParameters.rest,
     output: {
-      kind: Kind.Item,
+      type: Type.Item,
       value: [parsedBareItem.output, parsedParameters.output],
     },
   };
@@ -199,7 +199,7 @@ export function parseDictionary(input: string): Parsed<Dictionary> {
 
   const dictionary = new Map<string, Item | InnerList>();
   const scanner = new Scanner(input);
-  const msg = message.bind(null, input, Kind.Dictionary);
+  const msg = message.bind(null, input, Type.Dictionary);
 
   while (!isEmpty(scanner.current)) {
     const parsedKey = parseKey(scanner.current);
@@ -224,7 +224,7 @@ export function parseDictionary(input: string): Parsed<Dictionary> {
       scanner.current = parsedParameters.rest;
 
       dictionary.set(key, {
-        kind: Kind.Item,
+        type: Type.Item,
         value: [TRUE, parsedParameters.output],
       });
     }
@@ -234,7 +234,7 @@ export function parseDictionary(input: string): Parsed<Dictionary> {
     if (isEmpty(scanner.current)) {
       return {
         rest: scanner.current,
-        output: { kind: Kind.Dictionary, value: [...dictionary] },
+        output: { type: Type.Dictionary, value: [...dictionary] },
       };
     }
 
@@ -251,7 +251,7 @@ export function parseDictionary(input: string): Parsed<Dictionary> {
 
   return {
     rest: scanner.current,
-    output: { kind: Kind.Dictionary, value: [...dictionary] },
+    output: { type: Type.Dictionary, value: [...dictionary] },
   };
 }
 
@@ -275,7 +275,7 @@ export function parseBareItem(input: string): Parsed<BareItem> {
   }
   if (Char.Star === first || reALPHA.test(first)) return parseToken(input);
 
-  throw SyntaxError(message(input, SubKind.BareItem));
+  throw SyntaxError(message(input, SubType.BareItem));
 }
 
 /** Parse string into {@link Token}. */
@@ -292,7 +292,7 @@ export function parseToken(input: string): Parsed<Token> {
   const scanner = new Scanner(input);
 
   if (!(scanner.first === Char.Star || reALPHA.test(scanner.first))) {
-    throw SyntaxError(message(Kind.Token, input));
+    throw SyntaxError(message(Type.Token, input));
   }
 
   let output = "";
@@ -304,7 +304,7 @@ export function parseToken(input: string): Parsed<Token> {
       !(Char.Colon === first || Char.Slash === first || reTchar.test(first))
     ) {
       return {
-        output: { kind: Kind.Token, value: output },
+        output: { type: Type.Token, value: output },
         rest: scanner.current,
       };
     }
@@ -315,7 +315,7 @@ export function parseToken(input: string): Parsed<Token> {
   }
 
   return {
-    output: { kind: Kind.Token, value: output },
+    output: { type: Type.Token, value: output },
     rest: scanner.current,
   };
 }
@@ -340,7 +340,7 @@ export function parseString(input: string): Parsed<String> {
    */
   const scanner = new Scanner(input);
   const first = scanner.next();
-  const msg = message.bind(null, input, Kind.String);
+  const msg = message.bind(null, input, Type.String);
 
   if (first !== Char.DQuote) throw SyntaxError(msg());
 
@@ -362,7 +362,7 @@ export function parseString(input: string): Parsed<String> {
     } else if (char === Char.DQuote) {
       return {
         rest: scanner.current,
-        output: { kind: Kind.String, value: outputString },
+        output: { type: Type.String, value: outputString },
       };
     } else if (char !== Char.Space && !reVCHAR.test(char)) {
       throw new SyntaxError(msg());
@@ -403,7 +403,7 @@ export function parseIntegerOrDecimal(
    * 10. Return output_number.
    */
 
-  let type: Kind.Integer | Kind.Decimal = Kind.Integer;
+  let type: Type.Integer | Type.Decimal = Type.Integer;
   let input_number = "";
 
   const scanner = new Scanner(input);
@@ -416,11 +416,11 @@ export function parseIntegerOrDecimal(
   }
 
   if (isEmpty(scanner.current)) {
-    throw SyntaxError(messenger(Kind.Integer + " | " + Kind.Dictionary));
+    throw SyntaxError(messenger(Type.Integer + " | " + Type.Dictionary));
   }
 
   if (!reDigit.test(scanner.first)) {
-    throw SyntaxError(messenger(Kind.Integer + " | " + Kind.Dictionary));
+    throw SyntaxError(messenger(Type.Integer + " | " + Type.Dictionary));
   }
 
   while (!isEmpty(scanner.current)) {
@@ -428,55 +428,55 @@ export function parseIntegerOrDecimal(
 
     if (reDigit.test(char)) {
       input_number += char;
-    } else if (type === Kind.Integer && char === Char.Period) {
+    } else if (type === Type.Integer && char === Char.Period) {
       if (NumberOfDigits.MaxIntegerPart < input_number.length) {
-        throw SyntaxError(messenger(Kind.Decimal));
+        throw SyntaxError(messenger(Type.Decimal));
       }
 
       input_number += char;
-      type = Kind.Decimal;
+      type = Type.Decimal;
     } else {
       scanner.current = char + scanner.current;
       break;
     }
 
     if (
-      type === Kind.Integer && NumberOfDigits.MaxInteger < input_number.length
+      type === Type.Integer && NumberOfDigits.MaxInteger < input_number.length
     ) {
-      throw SyntaxError(messenger(Kind.Integer));
+      throw SyntaxError(messenger(Type.Integer));
     }
 
     if (
-      type === Kind.Decimal && NumberOfDigits.MaxDecimal < input_number.length
+      type === Type.Decimal && NumberOfDigits.MaxDecimal < input_number.length
     ) {
-      throw SyntaxError(messenger(Kind.Decimal));
+      throw SyntaxError(messenger(Type.Decimal));
     }
   }
 
-  if (type === Kind.Integer) {
+  if (type === Type.Integer) {
     const outputNumber = Number.parseInt(input_number) * sign;
 
     return {
-      output: { kind: Kind.Integer, value: outputNumber },
+      output: { type: Type.Integer, value: outputNumber },
       rest: scanner.current,
     };
   }
 
   if (last(input_number) === Char.Period) {
-    throw SyntaxError(messenger(Kind.Integer + " | " + Kind.Dictionary));
+    throw SyntaxError(messenger(Type.Integer + " | " + Type.Dictionary));
   }
 
   if (
     NumberOfDigits.MaxFractionPart < decimalPlaces(Number(input_number))
   ) {
-    throw SyntaxError(messenger(Kind.Dictionary));
+    throw SyntaxError(messenger(Type.Dictionary));
   }
 
   const outputNumber = Number.parseFloat(input_number) * sign;
 
   return {
     rest: scanner.current,
-    output: { kind: Kind.Decimal, value: outputNumber },
+    output: { type: Type.Decimal, value: outputNumber },
   };
 }
 
@@ -497,7 +497,7 @@ export function parseBoolean(input: string): Parsed<Boolean> {
    */
   const scanner = new Scanner(input);
   const first = scanner.next();
-  const msg = message.bind(null, input, Kind.Boolean);
+  const msg = message.bind(null, input, Type.Boolean);
 
   if (first !== Char.Question) throw SyntaxError(msg());
 
@@ -506,7 +506,7 @@ export function parseBoolean(input: string): Parsed<Boolean> {
   if (nextChar === Bool.True || nextChar === Bool.False) {
     const value = nextChar === Bool.False ? false : true;
 
-    return { output: { kind: Kind.Boolean, value }, rest: scanner.current };
+    return { output: { type: Type.Boolean, value }, rest: scanner.current };
   }
 
   throw SyntaxError(msg());
@@ -527,7 +527,7 @@ export function parseBinary(input: string): Parsed<Binary> {
 
   const scanner = new Scanner(input);
   const first = scanner.next();
-  const msg = message.bind(null, input, Kind.Binary);
+  const msg = message.bind(null, input, Type.Binary);
 
   if (first !== Char.Colon) throw SyntaxError(msg());
 
@@ -543,7 +543,7 @@ export function parseBinary(input: string): Parsed<Binary> {
 
   return {
     rest,
-    output: { kind: Kind.Binary, value: binaryContent },
+    output: { type: Type.Binary, value: binaryContent },
   };
 }
 
@@ -559,7 +559,7 @@ export function parseKey(input: string): Parsed<string> {
    * 4. Return output_string.
    */
   const first = head(input);
-  const msg = message.bind(null, input, SubKind.Key);
+  const msg = message.bind(null, input, SubType.Key);
   let outputString = "";
 
   if (!(first === Char.Star || reLcalpha.test(first))) {
@@ -632,7 +632,7 @@ export function parseParameters(input: string): Parsed<Parameters> {
   }
   return {
     rest: scanner.current,
-    output: { kind: Kind.Parameters, value: [...parameters] },
+    output: { type: Type.Parameters, value: [...parameters] },
   };
 }
 
@@ -655,7 +655,7 @@ export function parseInnerList(input: string): Parsed<InnerList> {
 
   const scanner = new Scanner(input);
   const first = scanner.next();
-  const msg = message.bind(null, input, Kind.InnerList);
+  const msg = message.bind(null, input, Type.InnerList);
 
   if (first !== Char.LParen) throw SyntaxError(msg());
 
@@ -671,7 +671,7 @@ export function parseInnerList(input: string): Parsed<InnerList> {
 
       return {
         output: {
-          kind: Kind.InnerList,
+          type: Type.InnerList,
           value: [innerLists, parsedParameters.output],
         },
         rest: parsedParameters.rest,
@@ -691,6 +691,6 @@ export function parseInnerList(input: string): Parsed<InnerList> {
   throw SyntaxError(msg());
 }
 
-function message(actual: string, kind: string): string {
-  return `invalid <${kind}> syntax. "${actual}"`;
+function message(actual: string, type: string): string {
+  return `invalid <${type}> syntax. "${actual}"`;
 }

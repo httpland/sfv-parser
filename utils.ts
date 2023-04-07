@@ -1,7 +1,7 @@
 // Copyright 2023-latest the httpland authors. All rights reserved. MIT license.
 // This module is browser compatible.
 
-import { Char, Kind } from "./constants.ts";
+import { Char, Type } from "./constants.ts";
 import { head, isString, pascalCase } from "./deps.ts";
 import { type SfNode } from "./types.ts";
 
@@ -76,12 +76,12 @@ export function displayKey(input: string): string {
 }
 
 export function displaySfNode(input: SfNode): string {
-  const kind = pascalCase(input.kind);
+  const type = pascalCase(input.type);
   const content = isString(input.value)
     ? `"${input.value}"`
     : String(input.value);
 
-  return `${kind} { ${content} }`;
+  return `${type} { ${content} }`;
 }
 
 export function toDecimalFormat(input: number): string {
@@ -93,6 +93,6 @@ export function toDecimalFormat(input: number): string {
 
 export function isTrue(
   input: SfNode,
-): input is { kind: Kind.Boolean; value: true } {
-  return input.kind === Kind.Boolean && input.value === true;
+): input is { type: Type.Boolean; value: true } {
+  return input.type === Type.Boolean && input.value === true;
 }

@@ -18,4 +18,4 @@ export {
   String,
   Token,
 } from "./types.ts";
-export { Kind } from "./constants.ts";
+export { Type } from "./constants.ts";

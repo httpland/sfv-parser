@@ -11,11 +11,11 @@ import {
   String,
   Token,
 } from "./types.ts";
-import { assertEquals, describe, it, Kind } from "./_dev_deps.ts";
+import { assertEquals, describe, it, Type } from "./_dev_deps.ts";
 
 describe("Boolean", () => {
-  it("should has kind", () => {
-    assertEquals(new Boolean(true).kind, Kind.Boolean);
+  it("should has type", () => {
+    assertEquals(new Boolean(true).type, Type.Boolean);
   });
 
   it("should has value", () => {
@@ -25,8 +25,8 @@ describe("Boolean", () => {
 });
 
 describe("String", () => {
-  it("should has kind", () => {
-    assertEquals(new String("").kind, Kind.String);
+  it("should has type", () => {
+    assertEquals(new String("").type, Type.String);
   });
 
   it("should has value", () => {
@@ -36,8 +36,8 @@ describe("String", () => {
 });
 
 describe("Token", () => {
-  it("should has kind", () => {
-    assertEquals(new Token("").kind, Kind.Token);
+  it("should has type", () => {
+    assertEquals(new Token("").type, Type.Token);
   });
 
   it("should has value", () => {
@@ -47,8 +47,8 @@ describe("Token", () => {
 });
 
 describe("Integer", () => {
-  it("should has kind", () => {
-    assertEquals(new Integer(0).kind, Kind.Integer);
+  it("should has type", () => {
+    assertEquals(new Integer(0).type, Type.Integer);
   });
 
   it("should has value", () => {
@@ -58,8 +58,8 @@ describe("Integer", () => {
 });
 
 describe("Decimal", () => {
-  it("should has kind", () => {
-    assertEquals(new Decimal(0).kind, Kind.Decimal);
+  it("should has type", () => {
+    assertEquals(new Decimal(0).type, Type.Decimal);
   });
 
   it("should has value", () => {
@@ -69,8 +69,8 @@ describe("Decimal", () => {
 });
 
 describe("Binary", () => {
-  it("should has kind", () => {
-    assertEquals(new Binary(new Uint8Array()).kind, Kind.Binary);
+  it("should has type", () => {
+    assertEquals(new Binary(new Uint8Array()).type, Type.Binary);
   });
 
   it("should has value", () => {
@@ -79,10 +79,10 @@ describe("Binary", () => {
 });
 
 describe("Item", () => {
-  it("should has kind", () => {
+  it("should has type", () => {
     assertEquals(
-      new Item([new Boolean(false), new Parameters()]).kind,
-      Kind.Item,
+      new Item([new Boolean(false), new Parameters()]).type,
+      Type.Item,
     );
   });
 
@@ -95,8 +95,8 @@ describe("Item", () => {
 });
 
 describe("List", () => {
-  it("should has kind", () => {
-    assertEquals(new List().kind, Kind.List);
+  it("should has type", () => {
+    assertEquals(new List().type, Type.List);
   });
 
   it("should has value", () => {
@@ -105,15 +105,15 @@ describe("List", () => {
 });
 
 describe("InnerList", () => {
-  it("should has kind", () => {
+  it("should has type", () => {
     assertEquals(
       new InnerList([
         [
           new Item([new Boolean(false), new Parameters()]),
         ],
         new Parameters(),
-      ]).kind,
-      Kind.InnerList,
+      ]).type,
+      Type.InnerList,
     );
   });
 
@@ -136,8 +136,8 @@ describe("InnerList", () => {
 });
 
 describe("Parameters", () => {
-  it("should has kind", () => {
-    assertEquals(new Parameters().kind, Kind.Parameters);
+  it("should has type", () => {
+    assertEquals(new Parameters().type, Type.Parameters);
   });
 
   it("should has value", () => {
@@ -157,10 +157,10 @@ describe("Parameters", () => {
 });
 
 describe("Dictionary", () => {
-  it("should has kind", () => {
+  it("should has type", () => {
     assertEquals(
-      new Dictionary().kind,
-      Kind.Dictionary,
+      new Dictionary().type,
+      Type.Dictionary,
     );
   });
 

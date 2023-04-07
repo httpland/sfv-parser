@@ -22,7 +22,7 @@ import {
   toDecimalFormat,
 } from "./utils.ts";
 import { evenRoundBy } from "./deps.ts";
-import { Bool, Char, Kind, Msg, NumberOfDigits } from "./constants.ts";
+import { Bool, Char, Msg, NumberOfDigits, Type } from "./constants.ts";
 import { Binary, Dictionary, List } from "./mod.ts";
 import { reALPHA, reParamKey, reTchar, reVCHAR } from "./abnf.ts";
 
@@ -35,27 +35,27 @@ import { reALPHA, reParamKey, reTchar, reVCHAR } from "./abnf.ts";
  * import { assertEquals } from "https://deno.land/std/testing/asserts.ts";
  *
  * const sfv = {
- *   "kind": "list",
+ *   "type": "list",
  *   "value": [
  *     {
- *       "kind": "item",
+ *       "type": "item",
  *       "value": [
- *         { "kind": "token", "value": "sugar" },
- *         { "kind": "parameters", "value": [] },
+ *         { "type": "token", "value": "sugar" },
+ *         { "type": "parameters", "value": [] },
  *       ],
  *     },
  *     {
- *       "kind": "item",
+ *       "type": "item",
  *       "value": [
- *         { "kind": "token", "value": "tea" },
- *         { "kind": "parameters", "value": [] },
+ *         { "type": "token", "value": "tea" },
+ *         { "type": "parameters", "value": [] },
  *       ],
  *     },
  *     {
- *       "kind": "item",
+ *       "type": "item",
  *       "value": [
- *         { "kind": "token", "value": "rum" },
- *         { "kind": "parameters", "value": [] },
+ *         { "type": "token", "value": "rum" },
+ *         { "type": "parameters", "value": [] },
  *       ],
  *     },
  *   ],
@@ -74,7 +74,7 @@ export function stringifySfv(input: Sfv): string {
    * 6. Return output_string converted into an array of bytes, using ASCII encoding [RFC0020].
    */
 
-  switch (input.kind) {
+  switch (input.type) {
     case "dictionary": {
       return stringifyDictionary(input);
     }
@@ -107,7 +107,7 @@ export function stringifyList(input: List): string {
 }
 
 function _stringifyItemOrInnerList(input: Item | InnerList): string {
-  if (input.kind === Kind.Item) return stringifyItem(input);
+  if (input.type === Type.Item) return stringifyItem(input);
 
   return stringifyInnerList(input);
 }
@@ -139,7 +139,7 @@ export function stringifyDictionary(input: Dictionary): string {
 function _stringifyEntry([key, value]: Dictionary["value"][number]): string {
   const keyFormat = stringifyKey(key);
 
-  const valueFormat = value.kind === Kind.Item && isTrue(value.value[0])
+  const valueFormat = value.type === Type.Item && isTrue(value.value[0])
     ? stringifyParameters(value.value[1])
     : Char.Eq + _stringifyItemOrInnerList(value);
 
@@ -223,24 +223,24 @@ export function stringifyDecimal(input: Decimal): string {
  * @throws {RangeError}
  */
 export function stringifyBareItem(input: BareItem): string {
-  switch (input.kind) {
-    case Kind.String: {
+  switch (input.type) {
+    case Type.String: {
       return stringifyString(input);
     }
-    case Kind.Token: {
+    case Type.Token: {
       return stringifyToken(input);
     }
-    case Kind.Decimal: {
+    case Type.Decimal: {
       return stringifyDecimal(input);
     }
-    case Kind.Integer: {
+    case Type.Integer: {
       return stringifyInteger(input);
     }
-    case Kind.Binary: {
+    case Type.Binary: {
       return stringifyBinary(input);
     }
 
-    case Kind.Boolean: {
+    case Type.Boolean: {
       return stringifyBoolean(input);
     }
 

@@ -38,7 +38,8 @@ export const enum Bool {
   True = "1",
 }
 
-export const enum Kind {
+/** Structured field values node type. */
+export const enum Type {
   String = "string",
   Token = "token",
   Integer = "integer",
@@ -57,9 +58,9 @@ export const enum Msg {
   Unreachable = "unreachable",
 }
 
-export const TRUE = { kind: Kind.Boolean, value: true } as const;
+export const TRUE = { type: Type.Boolean, value: true } as const;
 
-export const enum SubKind {
+export const enum SubType {
   BareItem = "bare-item",
   Key = "key",
 }

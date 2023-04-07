@@ -25,27 +25,27 @@ import { assertEquals } from "https://deno.land/std/testing/asserts.ts";
 const result = parseSfv("sugar, tea, rum", "list");
 
 assertEquals(result, {
-  "kind": "list",
+  "type": "list",
   "value": [
     {
-      "kind": "item",
+      "type": "item",
       "value": [
-        { "kind": "token", "value": "sugar" },
-        { "kind": "parameters", "value": [] },
+        { "type": "token", "value": "sugar" },
+        { "type": "parameters", "value": [] },
       ],
     },
     {
-      "kind": "item",
+      "type": "item",
       "value": [
-        { "kind": "token", "value": "tea" },
-        { "kind": "parameters", "value": [] },
+        { "type": "token", "value": "tea" },
+        { "type": "parameters", "value": [] },
       ],
     },
     {
-      "kind": "item",
+      "type": "item",
       "value": [
-        { "kind": "token", "value": "rum" },
-        { "kind": "parameters", "value": [] },
+        { "type": "token", "value": "rum" },
+        { "type": "parameters", "value": [] },
       ],
     },
   ],
@@ -72,27 +72,27 @@ import { stringifySfv } from "https://deno.land/x/sfv_parser@$VERSION/mod.ts";
 import { assertEquals } from "https://deno.land/std/testing/asserts.ts";
 
 const sfv = {
-  "kind": "list",
+  "type": "list",
   "value": [
     {
-      "kind": "item",
+      "type": "item",
       "value": [
-        { "kind": "token", "value": "sugar" },
-        { "kind": "parameters", "value": [] },
+        { "type": "token", "value": "sugar" },
+        { "type": "parameters", "value": [] },
       ],
     },
     {
-      "kind": "item",
+      "type": "item",
       "value": [
-        { "kind": "token", "value": "tea" },
-        { "kind": "parameters", "value": [] },
+        { "type": "token", "value": "tea" },
+        { "type": "parameters", "value": [] },
       ],
     },
     {
-      "kind": "item",
+      "type": "item",
       "value": [
-        { "kind": "token", "value": "rum" },
-        { "kind": "parameters", "value": [] },
+        { "type": "token", "value": "rum" },
+        { "type": "parameters", "value": [] },
       ],
     },
   ],

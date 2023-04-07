@@ -1,104 +1,104 @@
 // Copyright 2023-latest the httpland authors. All rights reserved. MIT license.
 // This module is browser compatible.
 
-import { Kind } from "./constants.ts";
+import { Type } from "./constants.ts";
 
 /** Node definition. */
 interface Node {
-  /** Node kind. */
-  readonly kind: string;
+  /** Node type. */
+  readonly type: string;
 }
 
 export interface SfNode extends Node {
-  readonly kind: `${Kind}`;
+  readonly type: `${Type}`;
   readonly value: unknown;
 }
 
 export class Boolean implements SfNode {
-  readonly kind: `${Kind.Boolean}`;
+  readonly type: `${Type.Boolean}`;
   readonly value: boolean;
 
   constructor(value: boolean) {
-    this.kind = Kind.Boolean;
+    this.type = Type.Boolean;
     this.value = value;
   }
 }
 
 export class String implements SfNode {
-  readonly kind: `${Kind.String}`;
+  readonly type: `${Type.String}`;
   readonly value: string;
 
   constructor(value: string) {
     this.value = value;
-    this.kind = Kind.String;
+    this.type = Type.String;
   }
 }
 
 export class Token implements SfNode {
-  readonly kind: `${Kind.Token}`;
+  readonly type: `${Type.Token}`;
   readonly value: string;
 
   constructor(value: string) {
-    this.kind = Kind.Token;
+    this.type = Type.Token;
     this.value = value;
   }
 }
 
 export class Integer implements SfNode {
-  readonly kind: `${Kind.Integer}`;
+  readonly type: `${Type.Integer}`;
 
   readonly value: number;
 
   constructor(value: number) {
-    this.kind = Kind.Integer;
+    this.type = Type.Integer;
     this.value = value;
   }
 }
 
 export class Decimal implements SfNode {
-  readonly kind: `${Kind.Decimal}`;
+  readonly type: `${Type.Decimal}`;
   readonly value: number;
 
   constructor(value: number) {
-    this.kind = Kind.Decimal;
+    this.type = Type.Decimal;
     this.value = value;
   }
 }
 
 export class Binary implements SfNode {
-  readonly kind: `${Kind.Binary}`;
+  readonly type: `${Type.Binary}`;
   readonly value: Uint8Array;
 
   constructor(value: Uint8Array) {
     this.value = value;
-    this.kind = Kind.Binary;
+    this.type = Type.Binary;
   }
 }
 
 export class Item implements SfNode {
-  readonly kind: `${Kind.Item}`;
+  readonly type: `${Type.Item}`;
   readonly value: readonly [bareItem: BareItem, parameters: Parameters];
 
   constructor(
     value: readonly [bareItem: BareItem, parameters: Parameters],
   ) {
-    this.kind = Kind.Item;
+    this.type = Type.Item;
     this.value = value;
   }
 }
 
 export class List implements SfNode {
-  readonly kind: `${Kind.List}`;
+  readonly type: `${Type.List}`;
   readonly value: readonly (Item | InnerList)[];
 
   constructor(value: readonly (Item | InnerList)[] = []) {
-    this.kind = Kind.List;
+    this.type = Type.List;
     this.value = value;
   }
 }
 
 export class Dictionary implements SfNode {
-  readonly kind: `${Kind.Dictionary}`;
+  readonly type: `${Type.Dictionary}`;
   readonly value: readonly [key: string, value: Item | InnerList][];
 
   constructor(
@@ -106,23 +106,23 @@ export class Dictionary implements SfNode {
       | [key: string, value: Item | InnerList][]
       | Record<string, Item | InnerList> = [],
   ) {
-    this.kind = Kind.Dictionary;
+    this.type = Type.Dictionary;
     this.value = Array.isArray(value) ? value : Object.entries(value);
   }
 }
 
 export class InnerList implements SfNode {
-  readonly kind: `${Kind.InnerList}`;
+  readonly type: `${Type.InnerList}`;
   readonly value: readonly [Item[], Parameters];
 
   constructor(value: readonly [Item[], Parameters]) {
-    this.kind = Kind.InnerList;
+    this.type = Type.InnerList;
     this.value = value;
   }
 }
 
 export class Parameters implements SfNode {
-  readonly kind: `${Kind.Parameters}`;
+  readonly type: `${Type.Parameters}`;
   readonly value: readonly [key: string, value: BareItem][];
 
   constructor(
@@ -130,7 +130,7 @@ export class Parameters implements SfNode {
       | [key: string, value: BareItem][]
       | Record<string, BareItem> = [],
   ) {
-    this.kind = Kind.Parameters;
+    this.type = Type.Parameters;
     this.value = Array.isArray(value) ? value : Object.entries(value);
   }
 }

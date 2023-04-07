@@ -86,28 +86,28 @@ declare namespace Test {
 // convert "expected" in test.json into JS Primitive
 export function format(input: Test.BareItem): BareItem {
   if (isString(input)) {
-    return { kind: "string", value: input };
+    return { type: "string", value: input };
   }
 
   if (isNumber(input)) {
     if (Number.isInteger(input)) {
-      return { kind: "integer", value: input };
+      return { type: "integer", value: input };
     }
 
-    return { kind: "decimal", value: input };
+    return { type: "decimal", value: input };
   }
 
-  if (isBoolean(input)) return { kind: "boolean", value: input };
+  if (isBoolean(input)) return { type: "boolean", value: input };
 
   switch (input[`__type`]) {
     case "binary":
       return {
-        kind: "binary",
+        type: "binary",
         value: decode(input.value),
       };
 
     case "token":
-      return { kind: "token", value: input.value };
+      return { type: "token", value: input.value };
     default:
       throw Error(`${input} ${typeof input} hogre`);
   }
@@ -135,11 +135,11 @@ export function formatItem([value, params]: Test.Item): Item {
   const bareItem = format(value);
   const parameters = formatParams(params);
 
-  return { kind: "item", value: [bareItem, parameters] };
+  return { type: "item", value: [bareItem, parameters] };
 }
 
 export function formatList(expected: Test.List): List {
-  return { kind: "list", value: expected.map(formatItemOrInnerList) };
+  return { type: "list", value: expected.map(formatItemOrInnerList) };
 }
 
 export function formatDictionary(
@@ -151,7 +151,7 @@ export function formatDictionary(
     return [key, itemOrInnerList] as [string, Item | InnerList];
   });
 
-  return { kind: "dictionary", value: dictionary };
+  return { type: "dictionary", value: dictionary };
 }
 
 function formatItemOrInnerList(
@@ -168,7 +168,7 @@ function formatInnerList(innerList: Test.InnerList): InnerList {
   const items = innerList[0].map(formatItem);
   const parameters = formatParams(innerList[1]);
 
-  return { kind: "inner-list", value: [items, parameters] };
+  return { type: "inner-list", value: [items, parameters] };
 }
 
 function isInnerList(
@@ -179,7 +179,7 @@ function isInnerList(
 
 function formatParams(params: Test.Parameters): Parameters {
   return {
-    kind: "parameters",
+    type: "parameters",
     value: params.map(([key, value]) => [key, format(value)]),
   };
 }

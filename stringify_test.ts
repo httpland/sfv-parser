@@ -9,16 +9,16 @@ import {
   stringifyString,
   stringifyToken,
 } from "./stringify.ts";
-import { assertEquals, assertThrows, describe, it, Kind } from "./_dev_deps.ts";
+import { assertEquals, assertThrows, describe, it, Type } from "./_dev_deps.ts";
 import { BareItem, InnerList, Item, Parameters } from "./types.ts";
 
 describe("stringifyBoolean", () => {
   it("should return ?1 if the input is true", () => {
-    assertEquals(stringifyBoolean({ value: true, kind: Kind.Boolean }), "?1");
+    assertEquals(stringifyBoolean({ value: true, type: Type.Boolean }), "?1");
   });
 
   it("should return ?0 if the input is false", () => {
-    assertEquals(stringifyBoolean({ value: false, kind: Kind.Boolean }), "?0");
+    assertEquals(stringifyBoolean({ value: false, type: Type.Boolean }), "?0");
   });
 });
 
@@ -38,7 +38,7 @@ describe("stringifyToken", () => {
 
     table.forEach(([input, expected]) => {
       assertEquals(
-        stringifyToken({ kind: Kind.Token, value: input }),
+        stringifyToken({ type: Type.Token, value: input }),
         expected,
       );
     });
@@ -57,7 +57,7 @@ describe("stringifyToken", () => {
     ];
 
     table.forEach((input) => {
-      assertThrows(() => stringifyToken({ kind: Kind.Token, value: input }));
+      assertThrows(() => stringifyToken({ type: Type.Token, value: input }));
     });
   });
 });
@@ -76,7 +76,7 @@ describe("stringifyInteger", () => {
 
     table.forEach(([input, expected]) => {
       assertEquals(
-        stringifyInteger({ kind: Kind.Integer, value: input }),
+        stringifyInteger({ type: Type.Integer, value: input }),
         expected,
       );
     });
@@ -97,7 +97,7 @@ describe("stringifyInteger", () => {
 
     table.forEach((input) => {
       assertThrows(() =>
-        stringifyInteger({ kind: Kind.Integer, value: input })
+        stringifyInteger({ type: Type.Integer, value: input })
       );
     });
   });
@@ -125,7 +125,7 @@ describe("stringifyDecimal", () => {
 
     table.forEach(([input, expected]) => {
       assertEquals(
-        stringifyDecimal({ kind: Kind.Decimal, value: input }),
+        stringifyDecimal({ type: Type.Decimal, value: input }),
         expected,
       );
     });
@@ -144,7 +144,7 @@ describe("stringifyDecimal", () => {
 
     table.forEach((input) => {
       assertThrows(() =>
-        stringifyDecimal({ kind: Kind.Decimal, value: input })
+        stringifyDecimal({ type: Type.Decimal, value: input })
       );
     });
   });
@@ -162,7 +162,7 @@ describe("stringifyString", () => {
 
     table.forEach(([input, expected]) => {
       assertEquals(
-        stringifyString({ kind: Kind.String, value: input }),
+        stringifyString({ type: Type.String, value: input }),
         expected,
       );
     });
@@ -175,7 +175,7 @@ describe("stringifyString", () => {
     ];
 
     table.forEach((input) => {
-      assertThrows(() => stringifyString({ kind: Kind.String, value: input }));
+      assertThrows(() => stringifyString({ type: Type.String, value: input }));
     });
   });
 });
@@ -183,13 +183,13 @@ describe("stringifyString", () => {
 describe("stringifyBareItem", () => {
   it("should return string if the input is valid bare item", () => {
     const table: [BareItem, string][] = [
-      [{ kind: Kind.Decimal, value: 0 }, "0.0"],
-      [{ kind: Kind.Boolean, value: false }, "?0"],
-      [{ kind: Kind.Boolean, value: true }, "?1"],
-      [{ kind: Kind.Integer, value: 0 }, "0"],
-      [{ kind: Kind.Token, value: "*/abc" }, "*/abc"],
-      [{ kind: Kind.Binary, value: new TextEncoder().encode("*") }, ":Kg==:"],
-      // [{ kind: Kind.String, value: "*/abc" }, "*/abc"],
+      [{ type: Type.Decimal, value: 0 }, "0.0"],
+      [{ type: Type.Boolean, value: false }, "?0"],
+      [{ type: Type.Boolean, value: true }, "?1"],
+      [{ type: Type.Integer, value: 0 }, "0"],
+      [{ type: Type.Token, value: "*/abc" }, "*/abc"],
+      [{ type: Type.Binary, value: new TextEncoder().encode("*") }, ":Kg==:"],
+      // [{ type: Type.String, value: "*/abc" }, "*/abc"],
     ];
 
     table.forEach(([input, expected]) => {
@@ -205,45 +205,45 @@ describe("stringifyBareItem", () => {
 describe("stringifyParameters", () => {
   it("should return string if the input is valid parameters", () => {
     const table: [Parameters, string][] = [
-      [{ kind: Kind.Parameters, value: [] }, ""],
+      [{ type: Type.Parameters, value: [] }, ""],
       [{
-        kind: Kind.Parameters,
+        type: Type.Parameters,
         value: [["a", {
-          kind: Kind.Boolean,
+          type: Type.Boolean,
           value: false,
         }]],
       }, ";a=?0"],
       [{
-        kind: Kind.Parameters,
+        type: Type.Parameters,
         value: [
-          ["a", { kind: Kind.Boolean, value: true }],
+          ["a", { type: Type.Boolean, value: true }],
         ],
       }, ";a"],
       [{
-        kind: Kind.Parameters,
+        type: Type.Parameters,
         value: [
-          ["*abc", { kind: Kind.Decimal, value: 1.2345 }],
+          ["*abc", { type: Type.Decimal, value: 1.2345 }],
         ],
       }, ";*abc=1.234"],
       [
         {
-          kind: Kind.Parameters,
+          type: Type.Parameters,
           value: [
             [
               "*abc",
-              { kind: Kind.Decimal, value: 1.2345 },
+              { type: Type.Decimal, value: 1.2345 },
             ],
             [
               "*def-",
-              { kind: Kind.Integer, value: 100 },
+              { type: Type.Integer, value: 100 },
             ],
             [
               "*",
-              { kind: Kind.Token, value: "*" },
+              { type: Type.Token, value: "*" },
             ],
             [
               "test",
-              { kind: Kind.String, value: "test" },
+              { type: Type.String, value: "test" },
             ],
           ],
         },
@@ -261,12 +261,12 @@ describe("stringifyParameters", () => {
 
   it("should throw error if the input is invalid parameters", () => {
     const table: Parameters["value"][] = [
-      [["?", { kind: Kind.Boolean, value: false }]],
+      [["?", { type: Type.Boolean, value: false }]],
     ];
 
     table.forEach((input) => {
       assertThrows(() =>
-        stringifyParameters({ kind: Kind.Parameters, value: input })
+        stringifyParameters({ type: Type.Parameters, value: input })
       );
     });
   });
@@ -275,35 +275,35 @@ describe("stringifyParameters", () => {
 describe("stringifyItem", () => {
   it("should return string if the input is valid item", () => {
     const table: [...Item["value"], string][] = [
-      [{ kind: Kind.Token, value: "abc" }, {
-        kind: Kind.Parameters,
+      [{ type: Type.Token, value: "abc" }, {
+        type: Type.Parameters,
         value: [],
       }, "abc"],
       [
-        { kind: Kind.Token, value: "abc" },
+        { type: Type.Token, value: "abc" },
         {
-          kind: Kind.Parameters,
+          type: Type.Parameters,
           value: [
             [
               "efg",
-              { kind: Kind.Boolean, value: true },
+              { type: Type.Boolean, value: true },
             ],
           ],
         },
         "abc;efg",
       ],
       [
-        { kind: Kind.Boolean, value: true },
+        { type: Type.Boolean, value: true },
         {
-          kind: Kind.Parameters,
+          type: Type.Parameters,
           value: [
             [
               "efg",
-              { kind: Kind.Boolean, value: true },
+              { type: Type.Boolean, value: true },
             ],
             [
               "*",
-              { kind: Kind.Decimal, value: 1.0 },
+              { type: Type.Decimal, value: 1.0 },
             ],
           ],
         },
@@ -313,7 +313,7 @@ describe("stringifyItem", () => {
 
     table.forEach(([bareItem, parameters, expected]) => {
       assertEquals(
-        stringifyItem({ kind: Kind.Item, value: [bareItem, parameters] }),
+        stringifyItem({ type: Type.Item, value: [bareItem, parameters] }),
         expected,
       );
     });
@@ -324,75 +324,75 @@ describe("stringifyInnerList", () => {
   it("should return string if the input is valid inner list", () => {
     const table: [InnerList["value"], string][] = [
       [
-        [[], { kind: "parameters", value: [] }],
+        [[], { type: "parameters", value: [] }],
         "()",
       ],
       [
         [
           [{
-            kind: Kind.Item,
-            value: [{ kind: Kind.Decimal, value: 1.1 }, {
-              kind: Kind.Parameters,
+            type: Type.Item,
+            value: [{ type: Type.Decimal, value: 1.1 }, {
+              type: Type.Parameters,
               value: [],
             }],
           }],
-          { kind: "parameters", value: [] },
+          { type: "parameters", value: [] },
         ],
         "(1.1)",
       ],
       [[
         [{
-          kind: Kind.Item,
+          type: Type.Item,
           value: [
-            { kind: Kind.Decimal, value: 1.1 },
+            { type: Type.Decimal, value: 1.1 },
             {
-              kind: Kind.Parameters,
+              type: Type.Parameters,
               value: [
-                ["*", { kind: Kind.Token, value: "abc" }],
+                ["*", { type: Type.Token, value: "abc" }],
               ],
             },
           ],
         }],
-        { kind: "parameters", value: [] },
+        { type: "parameters", value: [] },
       ], "(1.1;*=abc)"],
       [
         [
           [
             {
-              kind: Kind.Item,
+              type: Type.Item,
               value: [
-                { kind: Kind.Decimal, value: 1.1 },
+                { type: Type.Decimal, value: 1.1 },
                 {
-                  kind: Kind.Parameters,
+                  type: Type.Parameters,
                   value: [
-                    ["*", { kind: Kind.Token, value: "abc" }],
+                    ["*", { type: Type.Token, value: "abc" }],
                   ],
                 },
               ],
             },
             {
-              kind: Kind.Item,
+              type: Type.Item,
               value: [
-                { kind: Kind.Integer, value: 11 },
+                { type: Type.Integer, value: 11 },
                 {
-                  kind: Kind.Parameters,
+                  type: Type.Parameters,
                   value: [
-                    ["abc", { kind: Kind.Token, value: "def" }],
+                    ["abc", { type: Type.Token, value: "def" }],
                   ],
                 },
               ],
             },
           ],
-          { kind: "parameters", value: [] },
+          { type: "parameters", value: [] },
         ],
         "(1.1;*=abc 11;abc=def)",
       ],
       [[
         [],
         {
-          kind: "parameters",
+          type: "parameters",
           value: [
-            ["abc", { kind: "boolean", value: false }],
+            ["abc", { type: "boolean", value: false }],
           ],
         },
       ], "();abc=?0"],
@@ -400,7 +400,7 @@ describe("stringifyInnerList", () => {
 
     table.forEach(([value, expected]) => {
       assertEquals(
-        stringifyInnerList({ kind: Kind.InnerList, value }),
+        stringifyInnerList({ type: Type.InnerList, value }),
         expected,
       );
     });

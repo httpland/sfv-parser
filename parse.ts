@@ -18,7 +18,7 @@ import {
 } from "./types.ts";
 import { decode, head, isEmpty, last } from "./deps.ts";
 import { divideBy, Scanner, trimStart } from "./utils.ts";
-import { Bool, Char, Kind, NumberOfDigits, Sign } from "./constants.ts";
+import { Bool, Char, Kind, Msg, NumberOfDigits, Sign } from "./constants.ts";
 import {
   reALPHA,
   reBase64Alphabet,
@@ -58,7 +58,7 @@ export function parseSfv(fieldValue: string, fieldType: `${FieldType}`): Sfv {
   return parsed.output;
 }
 
-function getParser(fieldType: `${FieldType}`) {
+export function getParser(fieldType: `${FieldType}`) {
   switch (fieldType) {
     case Kind.Dictionary: {
       return parseDictionary;
@@ -71,7 +71,7 @@ function getParser(fieldType: `${FieldType}`) {
     }
 
     default: {
-      throw SyntaxError();
+      throw SyntaxError(Msg.Unreachable);
     }
   }
 }

@@ -1,4 +1,5 @@
 import {
+  Binary,
   Boolean,
   Decimal,
   Dictionary,
@@ -64,6 +65,16 @@ describe("Decimal", () => {
   it("should has value", () => {
     assertEquals(new Decimal(0).value, 0);
     assertEquals(new Decimal(1.1).value, 1.1);
+  });
+});
+
+describe("Binary", () => {
+  it("should has kind", () => {
+    assertEquals(new Binary(new Uint8Array()).kind, Kind.Binary);
+  });
+
+  it("should has value", () => {
+    assertEquals(new Binary(new Uint8Array()).value, new Uint8Array());
   });
 });
 

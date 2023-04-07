@@ -196,6 +196,10 @@ describe("stringifyBareItem", () => {
       assertEquals(stringifyBareItem(input), expected);
     });
   });
+
+  it("should throw error", () => {
+    assertThrows(() => stringifyBareItem({} as never));
+  });
 });
 
 describe("stringifyParameters", () => {

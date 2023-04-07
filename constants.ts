@@ -51,3 +51,8 @@ export const enum Kind {
   Parameters = "parameters",
   InnerList = "inner-list",
 }
+
+/** Error message. */
+export const enum Msg {
+  Unreachable = "unreachable",
+}

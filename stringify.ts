@@ -24,7 +24,7 @@ import {
   toDecimalFormat,
 } from "./utils.ts";
 import { evenRoundBy } from "./deps.ts";
-import { Bool, Char, Kind, NumberOfDigits } from "./constants.ts";
+import { Bool, Char, Kind, Msg, NumberOfDigits } from "./constants.ts";
 import { Binary, Dictionary, List } from "./mod.ts";
 import { reVCHAR } from "./abnf.ts";
 
@@ -246,7 +246,7 @@ export function stringifyBareItem(input: BareItem): string {
     }
 
     default: {
-      throw Error("unreachable");
+      throw Error(Msg.Unreachable);
     }
   }
 }

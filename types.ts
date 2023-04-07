@@ -3,7 +3,9 @@
 
 import { Kind } from "./constants.ts";
 
+/** Node definition. */
 interface Node {
+  /** Node kind. */
   readonly kind: string;
 }
 

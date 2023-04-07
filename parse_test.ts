@@ -1,4 +1,5 @@
 import {
+  getParser,
   parseBareItem,
   parseBinary,
   parseBoolean,
@@ -914,5 +915,11 @@ describe("parseDictionary", () => {
     table.forEach((input) => {
       assertThrows(() => parseDictionary(input));
     });
+  });
+});
+
+describe("getParser", () => {
+  it("should throw error", () => {
+    assertThrows(() => getParser("" as never));
   });
 });

@@ -8,8 +8,8 @@ import {
   stringifyParameters,
   stringifyToken,
 } from "./stringify.ts";
-import { assertEquals, assertThrows, describe, it } from "./_dev_deps.ts";
-import { BareItem, InnerList, Item, Kind, Parameters } from "./types.ts";
+import { assertEquals, assertThrows, describe, it, Kind } from "./_dev_deps.ts";
+import { BareItem, InnerList, Item, Parameters } from "./types.ts";
 
 describe("stringifyBoolean", () => {
   it("should return ?1 if the input is true", () => {

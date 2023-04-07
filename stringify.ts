@@ -8,7 +8,6 @@ import {
   InnerList,
   Integer,
   Item,
-  Kind,
   Parameters,
   Sfv,
   String,
@@ -25,7 +24,7 @@ import {
   toDecimalFormat,
 } from "./utils.ts";
 import { evenRoundBy } from "./deps.ts";
-import { Bool, Char, NumberOfDigits } from "./constants.ts";
+import { Bool, Char, Kind, NumberOfDigits } from "./constants.ts";
 import { Binary, Dictionary, List } from "./mod.ts";
 import { reVCHAR } from "./abnf.ts";
 

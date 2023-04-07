@@ -43,3 +43,17 @@ export const enum Bool {
   False = "0",
   True = "1",
 }
+
+export const enum Kind {
+  String = "string",
+  Token = "token",
+  Integer = "integer",
+  Decimal = "decimal",
+  Binary = "binary",
+  Boolean = "boolean",
+  List = "list",
+  Item = "item",
+  Dictionary = "dictionary",
+  Parameters = "parameters",
+  InnerList = "inner-list",
+}

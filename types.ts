@@ -1,19 +1,7 @@
 // Copyright 2023-latest the httpland authors. All rights reserved. MIT license.
 // This module is browser compatible.
 
-export const enum Kind {
-  String = "string",
-  Token = "token",
-  Integer = "integer",
-  Decimal = "decimal",
-  Binary = "binary",
-  Boolean = "boolean",
-  List = "list",
-  Item = "item",
-  Dictionary = "dictionary",
-  Parameters = "parameters",
-  InnerList = "inner-list",
-}
+import { Kind } from "./constants.ts";
 
 interface Node {
   readonly kind: string;
@@ -21,83 +9,128 @@ interface Node {
 
 export interface SfNode extends Node {
   readonly kind: `${Kind}`;
-
   readonly value: unknown;
 }
 
 export class Boolean implements SfNode {
-  readonly kind: `${Kind.Boolean}` = Kind.Boolean;
+  readonly kind: `${Kind.Boolean}`;
+  readonly value: boolean;
 
-  constructor(public readonly value: boolean) {}
+  constructor(value: boolean) {
+    this.kind = Kind.Boolean;
+    this.value = value;
+  }
 }
 
 export class String implements SfNode {
-  readonly kind: `${Kind.String}` = Kind.String;
+  readonly kind: `${Kind.String}`;
+  readonly value: string;
 
-  constructor(public readonly value: string) {}
+  constructor(value: string) {
+    this.value = value;
+    this.kind = Kind.String;
+  }
 }
 
 export class Token implements SfNode {
-  readonly kind: `${Kind.Token}` = Kind.Token;
+  readonly kind: `${Kind.Token}`;
+  readonly value: string;
 
-  constructor(public readonly value: string) {}
+  constructor(value: string) {
+    this.kind = Kind.Token;
+    this.value = value;
+  }
 }
 
 export class Integer implements SfNode {
-  readonly kind: `${Kind.Integer}` = Kind.Integer;
+  readonly kind: `${Kind.Integer}`;
 
-  constructor(public readonly value: number) {}
+  readonly value: number;
+
+  constructor(value: number) {
+    this.kind = Kind.Integer;
+    this.value = value;
+  }
 }
 
 export class Decimal implements SfNode {
-  readonly kind: `${Kind.Decimal}` = Kind.Decimal;
+  readonly kind: `${Kind.Decimal}`;
+  readonly value: number;
 
-  constructor(public readonly value: number) {}
+  constructor(value: number) {
+    this.kind = Kind.Decimal;
+    this.value = value;
+  }
 }
 
 export class Binary implements SfNode {
-  readonly kind: `${Kind.Binary}` = Kind.Binary;
+  readonly kind: `${Kind.Binary}`;
+  readonly value: Uint8Array;
 
-  constructor(public readonly value: Uint8Array) {}
+  constructor(value: Uint8Array) {
+    this.value = value;
+    this.kind = Kind.Binary;
+  }
 }
 
 export class Item implements SfNode {
-  readonly kind: `${Kind.Item}` = Kind.Item;
+  readonly kind: `${Kind.Item}`;
+  readonly value: readonly [bareItem: BareItem, parameters: Parameters];
 
   constructor(
-    public readonly value: readonly [
-      bareItem: BareItem,
-      parameters: Parameters,
-    ],
-  ) {}
+    value: readonly [bareItem: BareItem, parameters: Parameters],
+  ) {
+    this.kind = Kind.Item;
+    this.value = value;
+  }
 }
 
 export class List implements SfNode {
-  readonly kind: `${Kind.List}` = Kind.List;
+  readonly kind: `${Kind.List}`;
+  readonly value: readonly (Item | InnerList)[];
 
-  constructor(public readonly value: readonly (Item | InnerList)[]) {}
+  constructor(value: readonly (Item | InnerList)[] = []) {
+    this.kind = Kind.List;
+    this.value = value;
+  }
 }
 
 export class Dictionary implements SfNode {
-  readonly kind: `${Kind.Dictionary}` = Kind.Dictionary;
+  readonly kind: `${Kind.Dictionary}`;
+  readonly value: readonly [key: string, value: Item | InnerList][];
 
   constructor(
-    public readonly value: readonly [key: string, value: Item | InnerList][],
-  ) {}
+    value:
+      | [key: string, value: Item | InnerList][]
+      | Record<string, Item | InnerList> = [],
+  ) {
+    this.kind = Kind.Dictionary;
+    this.value = Array.isArray(value) ? value : Object.entries(value);
+  }
 }
 
 export class InnerList implements SfNode {
-  readonly kind: `${Kind.InnerList}` = Kind.InnerList;
+  readonly kind: `${Kind.InnerList}`;
+  readonly value: readonly [Item[], Parameters];
 
-  constructor(
-    public readonly value: readonly [Item[], Parameters],
-  ) {}
+  constructor(value: readonly [Item[], Parameters]) {
+    this.kind = Kind.InnerList;
+    this.value = value;
+  }
 }
 
 export class Parameters implements SfNode {
-  readonly kind: `${Kind.Parameters}` = Kind.Parameters;
+  readonly kind: `${Kind.Parameters}`;
+  readonly value: readonly [key: string, value: BareItem][];
 
-  constructor(public value: readonly [key: string, value: BareItem][]) {}
+  constructor(
+    value:
+      | [key: string, value: BareItem][]
+      | Record<string, BareItem> = [],
+  ) {
+    this.kind = Kind.Parameters;
+    this.value = Array.isArray(value) ? value : Object.entries(value);
+  }
 }
 
 export type BareItem =

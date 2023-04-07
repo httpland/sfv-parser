@@ -10,7 +10,6 @@ import {
   InnerList,
   Integer,
   Item,
-  Kind,
   List,
   Parameters,
   Sfv,
@@ -19,7 +18,14 @@ import {
 } from "./types.ts";
 import { decode, head, isEmpty, last } from "./deps.ts";
 import { divideBy, Scanner, trimStart } from "./utils.ts";
-import { Bool, Char, FieldType, NumberOfDigits, Sign } from "./constants.ts";
+import {
+  Bool,
+  Char,
+  FieldType,
+  Kind,
+  NumberOfDigits,
+  Sign,
+} from "./constants.ts";
 import {
   reALPHA,
   reBase64Alphabet,

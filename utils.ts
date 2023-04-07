@@ -1,9 +1,9 @@
 // Copyright 2023-latest the httpland authors. All rights reserved. MIT license.
 // This module is browser compatible.
 
-import { Char } from "./constants.ts";
+import { Char, Kind } from "./constants.ts";
 import { head } from "./deps.ts";
-import { type Decimal, Integer, Kind, SfNode, Token } from "./types.ts";
+import { type Decimal, Integer, SfNode, Token } from "./types.ts";
 
 /** Scanner for character. */
 export class Scanner {

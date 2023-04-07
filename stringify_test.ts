@@ -324,7 +324,7 @@ describe("stringifyInnerList", () => {
   it("should return string if the input is valid inner list", () => {
     const table: [InnerList["value"], string][] = [
       [
-        [[], { type: "parameters", value: [] }],
+        [[], { type: Type.Parameters, value: [] }],
         "()",
       ],
       [
@@ -336,7 +336,7 @@ describe("stringifyInnerList", () => {
               value: [],
             }],
           }],
-          { type: "parameters", value: [] },
+          { type: Type.Parameters, value: [] },
         ],
         "(1.1)",
       ],
@@ -353,7 +353,7 @@ describe("stringifyInnerList", () => {
             },
           ],
         }],
-        { type: "parameters", value: [] },
+        { type: Type.Parameters, value: [] },
       ], "(1.1;*=abc)"],
       [
         [
@@ -383,16 +383,16 @@ describe("stringifyInnerList", () => {
               ],
             },
           ],
-          { type: "parameters", value: [] },
+          { type: Type.Parameters, value: [] },
         ],
         "(1.1;*=abc 11;abc=def)",
       ],
       [[
         [],
         {
-          type: "parameters",
+          type: Type.Parameters,
           value: [
-            ["abc", { type: "boolean", value: false }],
+            ["abc", { type: Type.Boolean, value: false }],
           ],
         },
       ], "();abc=?0"],

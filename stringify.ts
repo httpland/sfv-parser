@@ -35,27 +35,27 @@ import { reALPHA, reParamKey, reTchar, reVCHAR } from "./abnf.ts";
  * import { assertEquals } from "https://deno.land/std/testing/asserts.ts";
  *
  * const sfv = {
- *   "type": "list",
+ *   "type": "List",
  *   "value": [
  *     {
- *       "type": "item",
+ *       "type": "Item",
  *       "value": [
- *         { "type": "token", "value": "sugar" },
- *         { "type": "parameters", "value": [] },
+ *         { "type": "Token", "value": "sugar" },
+ *         { "type": "Parameters", "value": [] },
  *       ],
  *     },
  *     {
- *       "type": "item",
+ *       "type": "Item",
  *       "value": [
- *         { "type": "token", "value": "tea" },
- *         { "type": "parameters", "value": [] },
+ *         { "type": "Token", "value": "tea" },
+ *         { "type": "Parameters", "value": [] },
  *       ],
  *     },
  *     {
- *       "type": "item",
+ *       "type": "Item",
  *       "value": [
- *         { "type": "token", "value": "rum" },
- *         { "type": "parameters", "value": [] },
+ *         { "type": "Token", "value": "rum" },
+ *         { "type": "Parameters", "value": [] },
  *       ],
  *     },
  *   ],
@@ -75,13 +75,13 @@ export function stringifySfv(input: Sfv): string {
    */
 
   switch (input.type) {
-    case "dictionary": {
+    case "Dictionary": {
       return stringifyDictionary(input);
     }
-    case "item": {
+    case "Item": {
       return stringifyItem(input);
     }
-    case "list": {
+    case "List": {
       return stringifyList(input);
     }
   }

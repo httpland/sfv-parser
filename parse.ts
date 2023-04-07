@@ -21,12 +21,12 @@ import { decimalPlaces, divideBy, Scanner, trimStart } from "./utils.ts";
 import {
   Bool,
   Char,
-  Type,
   Msg,
   NumberOfDigits,
   Sign,
   SubType,
   TRUE,
+  Type,
 } from "./constants.ts";
 import {
   reALPHA,

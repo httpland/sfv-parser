@@ -1,4 +1,4 @@
-import { convert, Failure, Success } from "./_suite.ts";
+import { convert, Failure, pascalCase, Success } from "./_suite.ts";
 
 import token from "https://cdn.jsdelivr.net/gh/httpwg/structured-field-tests/token.json" assert {
   type: "json",
@@ -114,7 +114,7 @@ describe("success test case", () => {
     const ignore = ignoreNames.some((v) => suite.name.includes(v));
 
     it(suite.name, { ignore: ignore }, () => {
-      const result = parseSfv(suite.raw.join(), suite.header_type);
+      const result = parseSfv(suite.raw.join(), pascalCase(suite.header_type));
       const expected = convert(suite);
 
       assertEquals(result, expected);
@@ -125,7 +125,9 @@ describe("success test case", () => {
 describe("failure test case", () => {
   failure.forEach((suite) => {
     it(suite.name, () => {
-      assertThrows(() => parseSfv(suite.raw.join(), suite.header_type));
+      assertThrows(() =>
+        parseSfv(suite.raw.join(), pascalCase(suite.header_type))
+      );
     });
   });
 });

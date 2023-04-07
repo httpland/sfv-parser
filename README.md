@@ -22,30 +22,30 @@ Specify field value and field type(`list`, `dictionary`, `item`) for parser.
 import { parseSfv } from "https://deno.land/x/sfv_parser@$VERSION/parse.ts";
 import { assertEquals } from "https://deno.land/std/testing/asserts.ts";
 
-const result = parseSfv("sugar, tea, rum", "list");
+const result = parseSfv("sugar, tea, rum", "List");
 
 assertEquals(result, {
-  "type": "list",
+  "type": "List",
   "value": [
     {
-      "type": "item",
+      "type": "Item",
       "value": [
-        { "type": "token", "value": "sugar" },
-        { "type": "parameters", "value": [] },
+        { "type": "Token", "value": "sugar" },
+        { "type": "Parameters", "value": [] },
       ],
     },
     {
-      "type": "item",
+      "type": "Item",
       "value": [
-        { "type": "token", "value": "tea" },
-        { "type": "parameters", "value": [] },
+        { "type": "Token", "value": "tea" },
+        { "type": "Parameters", "value": [] },
       ],
     },
     {
-      "type": "item",
+      "type": "Item",
       "value": [
-        { "type": "token", "value": "rum" },
-        { "type": "parameters", "value": [] },
+        { "type": "Token", "value": "rum" },
+        { "type": "Parameters", "value": [] },
       ],
     },
   ],
@@ -60,7 +60,7 @@ If field value has an invalid syntax, it may throw a `SyntaxError`.
 import { parseSfv } from "https://deno.land/x/sfv_parser@$VERSION/parse.ts";
 import { assertThrows } from "https://deno.land/std/testing/asserts.ts";
 
-assertThrows(() => parseSfv("this, is, list", "dictionary"));
+assertThrows(() => parseSfv("this, is, list", "Dictionary"));
 ```
 
 ## Serialization
@@ -72,27 +72,27 @@ import { stringifySfv } from "https://deno.land/x/sfv_parser@$VERSION/mod.ts";
 import { assertEquals } from "https://deno.land/std/testing/asserts.ts";
 
 const sfv = {
-  "type": "list",
+  "type": "List",
   "value": [
     {
-      "type": "item",
+      "type": "Item",
       "value": [
-        { "type": "token", "value": "sugar" },
-        { "type": "parameters", "value": [] },
+        { "type": "Token", "value": "sugar" },
+        { "type": "Parameters", "value": [] },
       ],
     },
     {
-      "type": "item",
+      "type": "Item",
       "value": [
-        { "type": "token", "value": "tea" },
-        { "type": "parameters", "value": [] },
+        { "type": "Token", "value": "tea" },
+        { "type": "Parameters", "value": [] },
       ],
     },
     {
-      "type": "item",
+      "type": "Item",
       "value": [
-        { "type": "token", "value": "rum" },
-        { "type": "parameters", "value": [] },
+        { "type": "Token", "value": "rum" },
+        { "type": "Parameters", "value": [] },
       ],
     },
   ],

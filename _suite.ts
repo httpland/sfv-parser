@@ -7,7 +7,7 @@ import type {
   Parameters,
   Sfv,
 } from "./types.ts";
-import { isBoolean, isNumber, isString } from "./_dev_deps.ts";
+import { isBoolean, isNumber, isString, Type } from "./_dev_deps.ts";
 import { decode } from "https://deno.land/std@0.182.0/encoding/base32.ts";
 
 export interface Failure extends Suite {
@@ -86,30 +86,30 @@ declare namespace Test {
 // convert "expected" in test.json into JS Primitive
 export function format(input: Test.BareItem): BareItem {
   if (isString(input)) {
-    return { type: "string", value: input };
+    return { type: Type.String, value: input };
   }
 
   if (isNumber(input)) {
     if (Number.isInteger(input)) {
-      return { type: "integer", value: input };
+      return { type: Type.Integer, value: input };
     }
 
-    return { type: "decimal", value: input };
+    return { type: Type.Decimal, value: input };
   }
 
-  if (isBoolean(input)) return { type: "boolean", value: input };
+  if (isBoolean(input)) return { type: Type.Boolean, value: input };
 
   switch (input[`__type`]) {
     case "binary":
       return {
-        type: "binary",
+        type: Type.Binary,
         value: decode(input.value),
       };
 
     case "token":
-      return { type: "token", value: input.value };
+      return { type: Type.Token, value: input.value };
     default:
-      throw Error(`${input} ${typeof input} hogre`);
+      throw Error(`${input} ${typeof input}`);
   }
 }
 
@@ -135,11 +135,11 @@ export function formatItem([value, params]: Test.Item): Item {
   const bareItem = format(value);
   const parameters = formatParams(params);
 
-  return { type: "item", value: [bareItem, parameters] };
+  return { type: Type.Item, value: [bareItem, parameters] };
 }
 
 export function formatList(expected: Test.List): List {
-  return { type: "list", value: expected.map(formatItemOrInnerList) };
+  return { type: Type.List, value: expected.map(formatItemOrInnerList) };
 }
 
 export function formatDictionary(
@@ -151,7 +151,7 @@ export function formatDictionary(
     return [key, itemOrInnerList] as [string, Item | InnerList];
   });
 
-  return { type: "dictionary", value: dictionary };
+  return { type: Type.Dictionary, value: dictionary };
 }
 
 function formatItemOrInnerList(
@@ -168,7 +168,7 @@ function formatInnerList(innerList: Test.InnerList): InnerList {
   const items = innerList[0].map(formatItem);
   const parameters = formatParams(innerList[1]);
 
-  return { type: "inner-list", value: [items, parameters] };
+  return { type: Type.InnerList, value: [items, parameters] };
 }
 
 function isInnerList(
@@ -179,7 +179,15 @@ function isInnerList(
 
 function formatParams(params: Test.Parameters): Parameters {
   return {
-    type: "parameters",
+    type: Type.Parameters,
     value: params.map(([key, value]) => [key, format(value)]),
   };
+}
+
+export function pascalCase<T extends string>(
+  input: T,
+): T extends `${infer U}${infer W}` ? `${Capitalize<U>}${W}` : string {
+  const first = input.slice(0, 1);
+  const rest = input.slice(1);
+  return first.toUpperCase() + rest as never;
 }

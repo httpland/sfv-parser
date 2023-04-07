@@ -40,17 +40,17 @@ export const enum Bool {
 
 /** Structured field values node type. */
 export const enum Type {
-  String = "string",
-  Token = "token",
-  Integer = "integer",
-  Decimal = "decimal",
-  Binary = "binary",
-  Boolean = "boolean",
-  List = "list",
-  Item = "item",
-  Dictionary = "dictionary",
-  Parameters = "parameters",
-  InnerList = "inner-list",
+  String = "String",
+  Token = "Token",
+  Integer = "Integer",
+  Decimal = "Decimal",
+  Binary = "Binary",
+  Boolean = "Boolean",
+  List = "List",
+  Item = "Item",
+  Dictionary = "Dictionary",
+  Parameters = "Parameters",
+  InnerList = "InnerList",
 }
 
 /** Error message. */
@@ -61,6 +61,6 @@ export const enum Msg {
 export const TRUE = { type: Type.Boolean, value: true } as const;
 
 export const enum SubType {
-  BareItem = "bare-item",
-  Key = "key",
+  BareItem = "BareItem",
+  Key = "Key",
 }

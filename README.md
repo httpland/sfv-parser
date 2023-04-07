@@ -63,6 +63,44 @@ import { assertThrows } from "https://deno.land/std/testing/asserts.ts";
 assertThrows(() => parseSfv("this, is, list", "dictionary"));
 ```
 
+## Serialization
+
+Serialize structured field values into string.
+
+```ts
+import { stringifySfv } from "https://deno.land/x/sfv_parser@$VERSION/mod.ts";
+import { assertEquals } from "https://deno.land/std/testing/asserts.ts";
+
+const sfv = {
+  "kind": "list",
+  "value": [
+    {
+      "kind": "item",
+      "value": [
+        { "kind": "token", "value": "sugar" },
+        { "kind": "parameters", "value": [] },
+      ],
+    },
+    {
+      "kind": "item",
+      "value": [
+        { "kind": "token", "value": "tea" },
+        { "kind": "parameters", "value": [] },
+      ],
+    },
+    {
+      "kind": "item",
+      "value": [
+        { "kind": "token", "value": "rum" },
+        { "kind": "parameters", "value": [] },
+      ],
+    },
+  ],
+} as const;
+
+assertEquals(stringifySfv(sfv), "sugar, tea, rum");
+```
+
 ## License
 
 Copyright © 2023-present [httpland](https://github.com/httpland).

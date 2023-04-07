@@ -2,6 +2,7 @@
 // This module is browser compatible.
 
 export { parseSfv } from "./parse.ts";
+export { stringifySfv } from "./stringify.ts";
 export {
   type BareItem,
   Binary,

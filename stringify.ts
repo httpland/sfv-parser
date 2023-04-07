@@ -29,6 +29,44 @@ import { Bool, Char, NumberOfDigits } from "./constants.ts";
 import { Binary, Dictionary, List } from "./mod.ts";
 import { reVCHAR } from "./abnf.ts";
 
+/** Serialize {@link Sfv} into string.
+ * @param input Any {@link Sfv}.
+ *
+ * @example
+ * ```ts
+ * import { stringifySfv } from "https://deno.land/x/sfv_parser@$VERSION/mod.ts";
+ * import { assertEquals } from "https://deno.land/std/testing/asserts.ts";
+ *
+ * const sfv = {
+ *   "kind": "list",
+ *   "value": [
+ *     {
+ *       "kind": "item",
+ *       "value": [
+ *         { "kind": "token", "value": "sugar" },
+ *         { "kind": "parameters", "value": [] },
+ *       ],
+ *     },
+ *     {
+ *       "kind": "item",
+ *       "value": [
+ *         { "kind": "token", "value": "tea" },
+ *         { "kind": "parameters", "value": [] },
+ *       ],
+ *     },
+ *     {
+ *       "kind": "item",
+ *       "value": [
+ *         { "kind": "token", "value": "rum" },
+ *         { "kind": "parameters", "value": [] },
+ *       ],
+ *     },
+ *   ],
+ * } as const;
+ *
+ * assertEquals(stringifySfv(sfv), "sugar, tea, rum");
+ * ```
+ */
 export function stringifySfv(input: Sfv): string {
   /** Specification:
    * 1. If the structure is a Dictionary or List and its value is empty (i.e., it has no members), do not serialize the field at all (i.e., omit both the field-name and field-value).

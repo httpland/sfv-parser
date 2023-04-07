@@ -2,8 +2,8 @@
 // This module is browser compatible.
 
 import { Char, Kind } from "./constants.ts";
-import { head } from "./deps.ts";
-import { type Decimal, Integer, SfNode, Token } from "./types.ts";
+import { head, isString, pascalCase } from "./deps.ts";
+import { type SfNode } from "./types.ts";
 
 /** Scanner for character. */
 export class Scanner {
@@ -71,20 +71,17 @@ export function decimalPlaces(input: number): number {
   return divideBy(Char.Period, input.toString())?.[1]?.length ?? 0;
 }
 
-export function displayDecimal(input: Decimal): string {
-  return `Decimal(${input.value})`;
-}
-
-export function displayToken(input: Token): string {
-  return `Token("${input.value}")`;
-}
-
-export function displayInteger(input: Integer): string {
-  return `Integer(${input.value})`;
-}
-
 export function displayKey(input: string): string {
   return `key of "${input}"`;
+}
+
+export function displaySfNode(input: SfNode): string {
+  const kind = pascalCase(input.kind);
+  const content = isString(input.value)
+    ? `"${input.value}"`
+    : String(input.value);
+
+  return `${kind} { ${content} }`;
 }
 
 export function toDecimalFormat(input: number): string {

@@ -14,10 +14,8 @@ import {
   Token,
 } from "./types.ts";
 import {
-  displayDecimal,
-  displayInteger,
   displayKey,
-  displayToken,
+  displaySfNode,
   divideOf,
   isTrue,
   numberOfDigits,
@@ -153,12 +151,16 @@ export function stringifyBoolean(input: Boolean): string {
   return Char.Question + (input.value ? Bool.True : Bool.False);
 }
 
+/** Serialize {@link String} into string.
+ *
+ * @throws {TypeError} If the input is invalid [`<chr>`](https://www.rfc-editor.org/rfc/rfc8941.html#section-3.3.3-3).
+ */
 export function stringifyString(input: String): string {
   let output: string = Char.DQuote;
 
   for (const char of input.value) {
     if (!(Char.Space === char || reVCHAR.test(char))) {
-      throw TypeError();
+      throw TypeError(`invalid <${Abnf.Chr}> format. ${displaySfNode(input)}`);
     }
 
     if (Char.BackSlash === char || char === Char.DQuote) {
@@ -174,18 +176,19 @@ export function stringifyString(input: String): string {
 /** Serialize {@link Token} into string.
  * @param input Any {@link Token}.
  *
- * @throws {TypeError}
+ * @throws {TypeError} If the input is invalid [`<sf-token>`](https://www.rfc-editor.org/rfc/rfc8941.html#section-3.3.4-3).
  */
 export function stringifyToken(input: Token): string {
+  const nodeStr = displaySfNode.bind(null, input);
   const [head, tail] = divideOf(1, input.value);
 
   if (!(Char.Star === head || reALPHA.test(head))) {
-    throw TypeError(`invalid ${displayToken(input)} format.`);
+    throw TypeError(`invalid <${Abnf.SfToken}> format. ${nodeStr()}`);
   }
 
   for (const str of tail) {
     if (str !== Char.Colon && str !== Char.Slash && !reTchar.test(str)) {
-      throw TypeError(`invalid ${displayToken(input)} format.`);
+      throw TypeError(`invalid <${Abnf.SfToken}> format. ${nodeStr()} `);
     }
   }
 
@@ -195,22 +198,20 @@ export function stringifyToken(input: Token): string {
 /** Serialize {@link Decimal} into string.
  * @param input Any {@link Decimal}.
  *
- * @throws {RangeError}
+ * @throws {RangeError} If the input is invalid range.
  */
 export function stringifyDecimal(input: Decimal): string {
+  const nodeStr = displaySfNode.bind(null, input);
+
   if (!Number.isFinite(input.value)) {
-    throw RangeError(`${displayDecimal(input)} must be finite.`);
+    throw RangeError(`${Err.MustBeFinite} ${nodeStr()}`);
   }
 
   const value = evenRoundBy(input.value, 3);
   const digitNumber = numberOfDigits(value);
 
   if (NumberOfDigits.MaxIntegerPart < digitNumber) {
-    throw RangeError(
-      `${
-        displayDecimal(input)
-      } integer component must be less than or equal to 12 digits.`,
-    );
+    throw RangeError(`${Err.InvalidMaxIntegerPart} ${nodeStr()}`);
   }
 
   return toDecimalFormat(value);
@@ -249,34 +250,27 @@ export function stringifyBareItem(input: BareItem): string {
   }
 }
 
-const enum Range {
-  Minimum = -999999999999999,
-  Maximum = 999999999999999,
-}
-
 /** Serialize {@link Integer} into string.
  * @param input Any {@link Integer}.
  *
- * @throws {RangeError}
+ * @throws {RangeError} If the input is invalid range.
  */
 export function stringifyInteger(input: Integer): string {
+  const nodeStr = displaySfNode.bind(null, input);
+
   if (!Number.isInteger(input.value)) {
-    throw RangeError(`${displayInteger(input)} must be integer.`);
+    throw RangeError(`${Err.MustBeInteger} ${nodeStr()}`);
   }
 
   if (Range.Minimum > input.value) {
     throw RangeError(
-      `${
-        displayInteger(input)
-      } must be greater than or equal to ${Range.Minimum}.`,
+      `${nodeStr()} must be greater than or equal to ${Range.Minimum}.`,
     );
   }
 
   if (input.value > Range.Maximum) {
     throw RangeError(
-      `${
-        displayInteger(input)
-      } must be less than or equal to ${Range.Maximum}.`,
+      `${nodeStr()} must be less than or equal to ${Range.Maximum}.`,
     );
   }
 
@@ -298,8 +292,8 @@ export function stringifyItem(input: Item): string {
 /** Serialize {@link Parameters} into string.
  * @param input Any {@link Parameters}.
  *
- * @throws {TypeError}
- * @throws {RangeError}
+ * @throws {TypeError} If the input is invalid <key>.
+ * @throws {RangeError} If the input is invalid range.
  */
 export function stringifyParameters(input: Parameters): string {
   let output = "";
@@ -320,11 +314,11 @@ export function stringifyParameters(input: Parameters): string {
 /** Serialize {@link Key} into string.
  * @param input Any {@link Key}.
  *
- * @throws {TypeError}
+ * @throws {TypeError} If the input is invalid [`<key>`](https://www.rfc-editor.org/rfc/rfc8941.html#section-3.1.2-4).
  */
 export function stringifyKey(input: string): string {
   if (!reParamKey.test(input)) {
-    throw TypeError(`${displayKey(input)} is invalid format.`);
+    throw TypeError(`invalid <${Abnf.Key}> format. ${displayKey(input)}`);
   }
 
   return input;
@@ -346,6 +340,25 @@ export function stringifyInnerList(input: InnerList): string {
   return output;
 }
 
+/** Serialize {@link Binary} into string. */
 export function stringifyBinary(input: Binary): string {
   return Char.Colon + btoa(new TextDecoder().decode(input.value)) + Char.Colon;
+}
+
+const enum Abnf {
+  SfToken = "sf-token",
+  Chr = "chr",
+  Key = "key",
+}
+
+const enum Err {
+  InvalidMaxIntegerPart =
+    "integer component must be less than or equal to 12 digits.",
+  MustBeFinite = "must be finite.",
+  MustBeInteger = "must be integer.",
+}
+
+const enum Range {
+  Minimum = -999999999999999,
+  Maximum = 999999999999999,
 }

@@ -46,6 +46,11 @@ export const makeOptions = (version: string): BuildOptions => ({
       version: "1.1.1",
       subPath: "iterable/is_empty",
     },
+    "https://deno.land/x/isx@1.1.1/is_string.ts": {
+      name: "@miyauci/isx",
+      version: "1.1.1",
+      subPath: "is_string",
+    },
     "https://deno.land/x/prelude_js@1.1.0/head.ts": {
       name: "@miyauci/prelude",
       version: "1.1.0",
@@ -59,6 +64,10 @@ export const makeOptions = (version: string): BuildOptions => ({
     "https://esm.sh/round-half-even@1.3.0?pin=v114": {
       name: "round-half-even",
       version: "1.3.0",
+    },
+    "https://esm.sh/pascal-case@3.1.2?pin=v114": {
+      name: "pascal-case",
+      version: "3.1.2",
     },
   },
 });

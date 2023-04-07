@@ -1,3 +1,11 @@
+# [1.0.0-beta.2](https://github.com/httpland/sfv-parser/compare/1.0.0-beta.1...1.0.0-beta.2) (2023-04-07)
+
+
+### Features
+
+* **mod:** export serializer function ([3b5f2c9](https://github.com/httpland/sfv-parser/commit/3b5f2c9b4218fd5c873611fcdb7e3e3a3c084e6b))
+* **stringify:** add serializer for structured field values ([6d6780a](https://github.com/httpland/sfv-parser/commit/6d6780a718f374f67baef9718c31dfc1eb93239f))
+
 # 1.0.0-beta.1 (2023-04-06)
 
 

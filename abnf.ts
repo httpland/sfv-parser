@@ -11,3 +11,5 @@ export const reLcalpha = /^[a-z]$/;
 export const reBase64Alphabet = /^[A-Za-z\d+/=]*$/;
 
 export const reTchar = /^[!#$%&'*+.^_`|~\dA-Za-z-]$/;
+
+export const reParamKey = /^[a-z*][a-z\d_.*-]*$/;

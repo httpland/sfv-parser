@@ -26,7 +26,7 @@ import {
 import { evenRoundBy } from "./deps.ts";
 import { Bool, Char, Kind, Msg, NumberOfDigits } from "./constants.ts";
 import { Binary, Dictionary, List } from "./mod.ts";
-import { reVCHAR } from "./abnf.ts";
+import { reALPHA, reParamKey, reTchar, reVCHAR } from "./abnf.ts";
 
 /** Serialize {@link Sfv} into string.
  * @param input Any {@link Sfv}.
@@ -89,7 +89,7 @@ export function stringifySfv(input: Sfv): string {
   }
 }
 
-function stringifyList(input: List): string {
+export function stringifyList(input: List): string {
   /** Specification:
    * 1. Let output be an empty string.
    * 2. For each (member_value, parameters) of input_list:
@@ -114,7 +114,7 @@ function _stringifyItemOrInnerList(input: Item | InnerList): string {
   return stringifyInnerList(input);
 }
 
-function stringifyDictionary(input: Dictionary): string {
+export function stringifyDictionary(input: Dictionary): string {
   /** Specification:
    * 1. Let output be an empty string.
    * 2. For each member_key with a value of (member_value, parameters) in input_dictionary:
@@ -171,22 +171,20 @@ export function stringifyString(input: String): string {
   return output + Char.DQuote;
 }
 
-const ReTchar = /^[!#$%&'*+.^_`|~\dA-Za-z-]$/;
-
 /** Serialize {@link Token} into string.
  * @param input Any {@link Token}.
  *
- * @throws {KindError}
+ * @throws {TypeError}
  */
 export function stringifyToken(input: Token): string {
   const [head, tail] = divideOf(1, input.value);
 
-  if (!head || !/^[A-Za-z*]$/.test(head)) {
+  if (!(Char.Star === head || reALPHA.test(head))) {
     throw TypeError(`invalid ${displayToken(input)} format.`);
   }
 
   for (const str of tail) {
-    if (str !== Char.Colon && str !== Char.Slash && !ReTchar.test(str)) {
+    if (str !== Char.Colon && str !== Char.Slash && !reTchar.test(str)) {
       throw TypeError(`invalid ${displayToken(input)} format.`);
     }
   }
@@ -220,7 +218,7 @@ export function stringifyDecimal(input: Decimal): string {
 
 /** Serialize {@link BareItem} into string.
  *
- * @throws {KindError}
+ * @throws {TypeError}
  * @throws {RangeError}
  */
 export function stringifyBareItem(input: BareItem): string {
@@ -288,7 +286,7 @@ export function stringifyInteger(input: Integer): string {
 /** Serialize {@link Item} into string.
  * @param input Any {@link Item}.
  *
- * @throws {KindError}
+ * @throws {TypeError}
  * @throws {RangeError}
  */
 export function stringifyItem(input: Item): string {
@@ -300,7 +298,7 @@ export function stringifyItem(input: Item): string {
 /** Serialize {@link Parameters} into string.
  * @param input Any {@link Parameters}.
  *
- * @throws {KindError}
+ * @throws {TypeError}
  * @throws {RangeError}
  */
 export function stringifyParameters(input: Parameters): string {
@@ -319,15 +317,13 @@ export function stringifyParameters(input: Parameters): string {
   return output;
 }
 
-const ReParamKey = /^[a-z*][a-z\d_.*-]*$/;
-
 /** Serialize {@link Key} into string.
  * @param input Any {@link Key}.
  *
- * @throws {KindError}
+ * @throws {TypeError}
  */
 export function stringifyKey(input: string): string {
-  if (!ReParamKey.test(input)) {
+  if (!reParamKey.test(input)) {
     throw TypeError(`${displayKey(input)} is invalid format.`);
   }
 
@@ -337,7 +333,7 @@ export function stringifyKey(input: string): string {
 /** Serialize {@link InnerList} into string.
  * @param input Any {@link InnerList}.
  *
- * @throws {KindError}
+ * @throws {TypeError}
  * @throws {RangeError}
  */
 export function stringifyInnerList(input: InnerList): string {

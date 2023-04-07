@@ -19,7 +19,7 @@ import {
 } from "./types.ts";
 import { decode, head, isEmpty, last } from "./deps.ts";
 import { divideBy, Scanner, trimStart } from "./utils.ts";
-import { Char, FieldType, NumberOfDigits, Sign } from "./constants.ts";
+import { Bool, Char, FieldType, NumberOfDigits, Sign } from "./constants.ts";
 import {
   reALPHA,
   reBase64Alphabet,
@@ -481,8 +481,8 @@ export function parseBoolean(input: string): Parsed<Boolean> {
 
   const nextChar = scanner.next();
 
-  if (nextChar === "1" || nextChar === "0") {
-    const value = nextChar === "0" ? false : true;
+  if (nextChar === Bool.True || nextChar === Bool.False) {
+    const value = nextChar === Bool.False ? false : true;
 
     return { output: { kind: Kind.Boolean, value }, rest: scanner.current };
   }

@@ -165,44 +165,10 @@ Provides a utility of type constructor for
 
 This saves you the trouble of typing the `type` field.
 
-### Dictionary
-
-```ts
-import {
-  Dictionary,
-  type InnerList,
-  type Item,
-} from "https://deno.land/x/sfv_parser@$VERSION/types.ts";
-
-declare const input: Item | InnerList;
-const dictionary = new Dictionary({ "<key>": input });
-```
-
-or,
-
-```ts
-import {
-  Dictionary,
-  type InnerList,
-  type Item,
-} from "https://deno.land/x/sfv_parser@$VERSION/types.ts";
-
-declare const input: Item | InnerList;
-const dictionary = new Dictionary([
-  ["<key>", input],
-]);
-```
-
-yield:
-
-```json
-{
-  "type": "Dictionary",
-  "value": "[string, <Item | InnerList>][]"
-}
-```
-
 ### List
+
+Representation of
+[Rfc 8941, 3.1. Lists](https://www.rfc-editor.org/rfc/rfc8941.html#section-3.1).
 
 ```ts
 import {
@@ -224,31 +190,10 @@ yield:
 }
 ```
 
-### Item
-
-```ts
-import {
-  type BareItem,
-  Item,
-  type Parameters,
-} from "https://deno.land/x/sfv_parser@$VERSION/types.ts";
-
-declare const bareItem: BareItem;
-declare const parameters: Parameters;
-
-const item = new Item([bareItem, parameters]);
-```
-
-yield:
-
-```json
-{
-  "type": "Item",
-  "value": ["<BareItem>", "<Parameters>"]
-}
-```
-
 ### InnerList
+
+Representation of
+[Rfc 8941, 3.1.1. Inner Lists](https://www.rfc-editor.org/rfc/rfc8941.html#section-3.1.1).
 
 ```ts
 import {
@@ -272,6 +217,9 @@ yield:
 ```
 
 ### Parameters
+
+Representation of
+[Rfc 8941, 3.1.2. Parameters](https://www.rfc-editor.org/rfc/rfc8941.html#section-3.1.2).
 
 ```ts
 import {
@@ -308,25 +256,77 @@ yield:
 }
 ```
 
-### Boolean
+### Dictionary
+
+Representation of
+[Rfc 8941, 3.2. Dictionaries](https://www.rfc-editor.org/rfc/rfc8941.html#section-3.2).
 
 ```ts
-import { Boolean } from "https://deno.land/x/sfv_parser@$VERSION/types.ts";
+import {
+  Dictionary,
+  type InnerList,
+  type Item,
+} from "https://deno.land/x/sfv_parser@$VERSION/types.ts";
 
-declare const input: boolean;
-const boolean = new Boolean(input);
+declare const input: Item | InnerList;
+const dictionary = new Dictionary({ "<key>": input });
+```
+
+or,
+
+```ts
+import {
+  Dictionary,
+  type InnerList,
+  type Item,
+} from "https://deno.land/x/sfv_parser@$VERSION/types.ts";
+
+declare const input: Item | InnerList;
+const dictionary = new Dictionary([
+  ["<key>", input],
+]);
 ```
 
 yield:
 
 ```json
 {
-  "type": "Boolean",
-  "value": "<boolean>"
+  "type": "Dictionary",
+  "value": "[string, <Item | InnerList>][]"
+}
+```
+
+### Item
+
+Representation of
+[Rfc 8941, 3.3. Items](https://www.rfc-editor.org/rfc/rfc8941.html#section-3.3).
+
+```ts
+import {
+  type BareItem,
+  Item,
+  type Parameters,
+} from "https://deno.land/x/sfv_parser@$VERSION/types.ts";
+
+declare const bareItem: BareItem;
+declare const parameters: Parameters;
+
+const item = new Item([bareItem, parameters]);
+```
+
+yield:
+
+```json
+{
+  "type": "Item",
+  "value": ["<BareItem>", "<Parameters>"]
 }
 ```
 
 ### Integer
+
+Representation of
+[RFC 8941, 3.3.1. Integers](https://www.rfc-editor.org/rfc/rfc8941.html#section-3.3.1).
 
 ```ts
 import { Integer } from "https://deno.land/x/sfv_parser@$VERSION/types.ts";
@@ -346,6 +346,9 @@ yield:
 
 ### Decimal
 
+Representation of
+[Rfc 8941, 3.3.2. Decimals](https://www.rfc-editor.org/rfc/rfc8941.html#section-3.3.2).
+
 ```ts
 import { Decimal } from "https://deno.land/x/sfv_parser@$VERSION/types.ts";
 
@@ -363,6 +366,9 @@ yield:
 ```
 
 ### String
+
+Representation of
+[Rfc 8941, 3.3.3. Strings](https://www.rfc-editor.org/rfc/rfc8941.html#section-3.3.3).
 
 ```ts
 import { String } from "https://deno.land/x/sfv_parser@$VERSION/types.ts";
@@ -382,6 +388,9 @@ yield:
 
 ### Token
 
+Representation of
+[RFC 8941, 3.3.4. Tokens](https://www.rfc-editor.org/rfc/rfc8941.html#section-3.3.4).
+
 ```ts
 import { Token } from "https://deno.land/x/sfv_parser@$VERSION/types.ts";
 
@@ -400,6 +409,9 @@ yield:
 
 ### Binary
 
+Representation of
+[Rfc 8941,3.3.5. Byte Sequences](https://www.rfc-editor.org/rfc/rfc8941.html#section-3.3.5).
+
 ```ts
 import { Binary } from "https://deno.land/x/sfv_parser@$VERSION/types.ts";
 
@@ -413,6 +425,27 @@ yield:
 {
   "type": "Binary",
   "value": "<Uint8Array>"
+}
+```
+
+### Boolean
+
+Representation of
+[Rfc 8941, 3.3.6. Booleans](https://www.rfc-editor.org/rfc/rfc8941.html#section-3.3.6).
+
+```ts
+import { Boolean } from "https://deno.land/x/sfv_parser@$VERSION/types.ts";
+
+declare const input: boolean;
+const boolean = new Boolean(input);
+```
+
+yield:
+
+```json
+{
+  "type": "Boolean",
+  "value": "<boolean>"
 }
 ```
 

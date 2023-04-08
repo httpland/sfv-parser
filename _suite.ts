@@ -10,14 +10,6 @@ import type {
 import { isBoolean, isNumber, isString, Type } from "./_dev_deps.ts";
 import { decode } from "https://deno.land/std@0.182.0/encoding/base32.ts";
 
-export interface Failure extends Suite {
-  readonly header_type: "item" | "dictionary" | "list";
-  /** indicating whether the test is required to fail. Defaults to false. */
-  readonly must_fail: true;
-}
-
-export type Success = Suite & (ListHeader | ItemHeader | DictionaryHeader);
-
 interface ItemHeader {
   readonly header_type: "item";
 
@@ -109,6 +101,24 @@ export function format(input: Test.BareItem): BareItem {
     case "token":
       return { type: Type.Token, value: input.value };
   }
+}
+
+enum HeaderType {
+  Item = "item",
+  Dict = "dictionary",
+  List = "list",
+}
+
+const HEADER_TYPES: string[] = [
+  HeaderType.Dict,
+  HeaderType.Item,
+  HeaderType.List,
+];
+
+export function headerType(
+  input: string,
+): input is "item" | "dictionary" | "list" {
+  return HEADER_TYPES.includes(input);
 }
 
 export function convert(

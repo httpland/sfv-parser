@@ -1,4 +1,4 @@
-import { convert, Failure, pascalCase, Success } from "./_suite.ts";
+import { convert, headerType, pascalCase } from "./_suite.ts";
 
 import token from "https://cdn.jsdelivr.net/gh/httpwg/structured-field-tests/token.json" assert {
   type: "json",
@@ -94,11 +94,6 @@ const suites = [
   examples,
 ].flat();
 
-const [success, failure] = partition(
-  suites,
-  (suite) => "expected" in suite,
-) as unknown as [Success[], Failure[]];
-
 // Decimals what is 0 padding become integers when they become JavaScript objects.
 const ignoreNames = [
   "fractional 0 decimal",
@@ -109,25 +104,24 @@ const ignoreNames = [
   "list item parameterised dictionary",
 ];
 
-describe("success test case", () => {
-  success.forEach((suite) => {
+describe("parsing", () => {
+  suites.forEach((suite) => {
     const ignore = ignoreNames.some((v) => suite.name.includes(v));
 
-    it(suite.name, { ignore: ignore }, () => {
-      const result = parseSfv(suite.raw.join(), pascalCase(suite.header_type));
-      const expected = convert(suite);
+    it(suite.name, { ignore }, () => {
+      const fieldValue = suite.raw.join();
 
-      assertEquals(result, expected);
-    });
-  });
-});
-
-describe("failure test case", () => {
-  failure.forEach((suite) => {
-    it(suite.name, () => {
-      assertThrows(() =>
-        parseSfv(suite.raw.join(), pascalCase(suite.header_type))
-      );
+      if (
+        "expected" in suite && "raw" in suite && headerType(suite.header_type)
+      ) {
+        const result = parseSfv(fieldValue, pascalCase(suite.header_type));
+        const expected = convert(suite as never);
+        assertEquals(result, expected);
+      } else {
+        assertThrows(() =>
+          parseSfv(fieldValue, pascalCase(suite.header_type as never))
+        );
+      }
     });
   });
 });

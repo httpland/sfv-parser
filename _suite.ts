@@ -108,8 +108,6 @@ export function format(input: Test.BareItem): BareItem {
 
     case "token":
       return { type: Type.Token, value: input.value };
-    default:
-      throw Error(`${input} ${typeof input}`);
   }
 }
 

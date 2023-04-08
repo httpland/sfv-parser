@@ -85,6 +85,9 @@ export function parseSfv(
   filedValue: string,
   fieldType: `${Type.Dictionary}`,
 ): Dictionary;
+
+/** Parse string into {@link Sfv}.  */
+export function parseSfv(fieldValue: string, fieldType: `${FieldType}`): Sfv;
 export function parseSfv(fieldValue: string, fieldType: `${FieldType}`): Sfv {
   /**
    * 1. Convert input_bytes into an ASCII string input_string; if conversion fails, fail parsing.

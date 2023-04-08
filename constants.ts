@@ -39,7 +39,7 @@ export const enum Bool {
   True = "1",
 }
 
-/** Structured field values node type. */
+/** Structured field values data type. */
 export enum Type {
   String = "String",
   Token = "Token",

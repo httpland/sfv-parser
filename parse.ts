@@ -37,6 +37,7 @@ import {
   reVCHAR,
 } from "./abnf.ts";
 
+/** Structured field type. */
 export type FieldType = Type.List | Type.Item | Type.Dictionary;
 
 /** Parse string into {@link List}.

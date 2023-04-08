@@ -8,8 +8,8 @@ import * as v1_0_0 from "https://deno.land/x/sfv_parser@1.0.0/mod.ts";
 const fieldValue = largeGenerated[0]?.raw.join("") ?? "";
 
 Deno.bench("latest", { baseline: true, group: "parse" }, () => {
-  const a = parseSfv(fieldValue, "Dictionary");
+  parseSfv(fieldValue, "Dictionary");
 });
 Deno.bench("past", { group: "parse" }, () => {
-  const a = v1_0_0.parseSfv(fieldValue, "Dictionary");
+  v1_0_0.parseSfv(fieldValue, "Dictionary");
 });

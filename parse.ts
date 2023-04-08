@@ -74,6 +74,8 @@ export type FieldType = Type.List | Type.Item | Type.Dictionary;
  *   ],
  * });
  * ```
+ *
+ * @throws {SyntaxError} If the input is invalid syntax.
  */
 export function parseSfv(filedValue: string, fieldType: `${Type.List}`): List;
 

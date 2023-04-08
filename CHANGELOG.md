@@ -1,3 +1,13 @@
+# [1.0.0-beta.4](https://github.com/httpland/sfv-parser/compare/1.0.0-beta.3...1.0.0-beta.4) (2023-04-08)
+
+
+### Features
+
+* change type format to pascal case ([c2dba0f](https://github.com/httpland/sfv-parser/commit/c2dba0f2b534b0e21694017d40e34521fc6cad8d))
+* **constants:** remove const enum ([3281121](https://github.com/httpland/sfv-parser/commit/3281121dd44bdc576a83d0072971e3b8c4288879))
+* **stringify:** improve error message ([290817f](https://github.com/httpland/sfv-parser/commit/290817f2cc15a2a0e7ac5a5cc0c3d5b610998c10))
+* **types:** rename `kind` to `type` ([e9a36e5](https://github.com/httpland/sfv-parser/commit/e9a36e5592d343a654d2fc62b93da67fc8ea20c0))
+
 # [1.0.0-beta.3](https://github.com/httpland/sfv-parser/compare/1.0.0-beta.2...1.0.0-beta.3) (2023-04-07)
 
 

@@ -1,4 +1,4 @@
-import { BuildOptions } from "https://deno.land/x/dnt@0.33.1/mod.ts";
+import { BuildOptions } from "https://deno.land/x/dnt@0.34.0/mod.ts";
 
 export const makeOptions = (version: string): BuildOptions => ({
   test: false,

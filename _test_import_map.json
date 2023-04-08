@@ -1,0 +1,6 @@
+{
+  "imports": {
+    "https://deno.land/x/sfv_parser@$VERSION/": "./",
+    "https://deno.land/std/": "https://deno.land/std@0.182.0/"
+  }
+}

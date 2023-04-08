@@ -18,19 +18,20 @@ export const enum Char {
   Star = "*",
   Underscore = "_",
   Slash = "/",
-  Separator = `, `,
+  Separator = Char.Comma + Char.Space,
 }
 
 export const enum NumberOfDigits {
   MaxInteger = 15,
-  MaxDecimal = 16,
   MaxIntegerPart = 12,
   MaxFractionPart = 3,
+  MaxDecimal = NumberOfDigits.MaxIntegerPart + NumberOfDigits.MaxFractionPart +
+    1,
 }
 
 export const enum Sign {
   Plus = 1,
-  Minus = -1,
+  Minus = -Sign.Plus,
 }
 
 export const enum Bool {

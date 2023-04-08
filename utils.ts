@@ -2,7 +2,7 @@
 // This module is browser compatible.
 
 import { Char, Type } from "./constants.ts";
-import { head, isString, pascalCase } from "./deps.ts";
+import { head, isString } from "./deps.ts";
 import { type SfNode } from "./types.ts";
 
 /** Scanner for character. */
@@ -76,12 +76,11 @@ export function displayKey(input: string): string {
 }
 
 export function displaySfNode(input: SfNode): string {
-  const type = pascalCase(input.type);
   const content = isString(input.value)
     ? `"${input.value}"`
     : String(input.value);
 
-  return `${type} { ${content} }`;
+  return `${input.type} { ${content} }`;
 }
 
 export function toDecimalFormat(input: number): string {

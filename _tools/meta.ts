@@ -65,9 +65,5 @@ export const makeOptions = (version: string): BuildOptions => ({
       name: "round-half-even",
       version: "1.3.0",
     },
-    "https://esm.sh/pascal-case@3.1.2?pin=v114": {
-      name: "pascal-case",
-      version: "3.1.2",
-    },
   },
 });

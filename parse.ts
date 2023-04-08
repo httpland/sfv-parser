@@ -39,13 +39,52 @@ import {
 
 export type FieldType = Type.List | Type.Item | Type.Dictionary;
 
-export function parseSfv(filedValue: string, fieldType: `${Type.Item}`): Item;
+/** Parse string into {@link List}.
+ * @example
+ * ```ts
+ * import { parseSfv } from "https://deno.land/x/sfv_parser@$VERSION/parse.ts";
+ * import { assertEquals } from "https://deno.land/std/testing/asserts.ts";
+ *
+ * const result = parseSfv("sugar, tea, rum", "List");
+ *
+ * assertEquals(result, {
+ *   "type": "List",
+ *   "value": [
+ *     {
+ *       "type": "Item",
+ *       "value": [
+ *         { "type": "Token", "value": "sugar" },
+ *         { "type": "Parameters", "value": [] },
+ *       ],
+ *     },
+ *     {
+ *       "type": "Item",
+ *       "value": [
+ *         { "type": "Token", "value": "tea" },
+ *         { "type": "Parameters", "value": [] },
+ *       ],
+ *     },
+ *     {
+ *       "type": "Item",
+ *       "value": [
+ *         { "type": "Token", "value": "rum" },
+ *         { "type": "Parameters", "value": [] },
+ *       ],
+ *     },
+ *   ],
+ * });
+ * ```
+ */
 export function parseSfv(filedValue: string, fieldType: `${Type.List}`): List;
+
+/** Parse string into {@link Item}.  */
+export function parseSfv(filedValue: string, fieldType: `${Type.Item}`): Item;
+
+/** Parse string into {@link Dictionary}.  */
 export function parseSfv(
   filedValue: string,
   fieldType: `${Type.Dictionary}`,
 ): Dictionary;
-export function parseSfv(fieldValue: string, fieldType: `${FieldType}`): Sfv;
 export function parseSfv(fieldValue: string, fieldType: `${FieldType}`): Sfv {
   /**
    * 1. Convert input_bytes into an ASCII string input_string; if conversion fails, fail parsing.

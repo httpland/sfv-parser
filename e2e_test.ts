@@ -68,7 +68,6 @@ import serializationKeyGenerated from "https://cdn.jsdelivr.net/gh/httpwg/struct
   type: "json",
 };
 
-import { partition } from "https://deno.land/std@0.182.0/collections/partition.ts";
 import { assertEquals, assertThrows, describe, it } from "./_dev_deps.ts";
 import { parseSfv } from "./parse.ts";
 import { stringifySfv } from "./stringify.ts";

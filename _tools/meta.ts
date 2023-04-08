@@ -41,11 +41,6 @@ export const makeOptions = (version: string): BuildOptions => ({
   },
   packageManager: "pnpm",
   mappings: {
-    "https://deno.land/x/isx@1.1.1/iterable/is_empty.ts": {
-      name: "@miyauci/isx",
-      version: "1.1.1",
-      subPath: "iterable/is_empty",
-    },
     "https://deno.land/x/isx@1.1.1/is_string.ts": {
       name: "@miyauci/isx",
       version: "1.1.1",

@@ -16,7 +16,7 @@ import {
   String,
   Token,
 } from "./types.ts";
-import { decode, head, isEmpty, last } from "./deps.ts";
+import { decode, head, last } from "./deps.ts";
 import { decimalPlaces, divideBy, Scanner, trimStart } from "./utils.ts";
 import {
   Bool,
@@ -149,13 +149,13 @@ export function parseList(input: string): Parsed<List> {
   const members: (Item | InnerList)[] = [];
   const msg = message.bind(null, input, Type.List);
 
-  while (!isEmpty(scanner.current)) {
+  while (scanner.current) {
     const parsedItemOrInnerList = parseItemOrInnerList(scanner.current);
 
     members.push(parsedItemOrInnerList.output);
     scanner.current = parsedItemOrInnerList.rest.trimStart();
 
-    if (isEmpty(scanner.current)) {
+    if (!scanner.current) {
       return {
         rest: scanner.current,
         output: { type: Type.List, value: members },
@@ -170,7 +170,7 @@ export function parseList(input: string): Parsed<List> {
 
     scanner.current = scanner.current.trimStart();
 
-    if (isEmpty(scanner.current) || scanner.current.endsWith(Char.Comma)) {
+    if (!scanner.current || scanner.current.endsWith(Char.Comma)) {
       throw new SyntaxError(msg());
     }
   }
@@ -246,7 +246,7 @@ export function parseDictionary(input: string): Parsed<Dictionary> {
   const scanner = new Scanner(input);
   const msg = message.bind(null, input, Type.Dictionary);
 
-  while (!isEmpty(scanner.current)) {
+  while (scanner.current) {
     const parsedKey = parseKey(scanner.current);
 
     scanner.current = parsedKey.rest;
@@ -276,7 +276,7 @@ export function parseDictionary(input: string): Parsed<Dictionary> {
 
     scanner.current = scanner.current.trimStart();
 
-    if (isEmpty(scanner.current)) {
+    if (!scanner.current) {
       return {
         rest: scanner.current,
         output: { type: Type.Dictionary, value: [...dictionary] },
@@ -289,7 +289,7 @@ export function parseDictionary(input: string): Parsed<Dictionary> {
 
     scanner.current = scanner.current.trimStart();
 
-    if (isEmpty(scanner.current) || scanner.current.endsWith(Char.Comma)) {
+    if (!scanner.current || scanner.current.endsWith(Char.Comma)) {
       throw SyntaxError(msg());
     }
   }
@@ -342,7 +342,7 @@ export function parseToken(input: string): Parsed<Token> {
 
   let output = "";
 
-  while (!isEmpty(scanner.current)) {
+  while (scanner.current) {
     const first = scanner.first;
 
     if (
@@ -391,7 +391,7 @@ export function parseString(input: string): Parsed<String> {
 
   let outputString = "";
 
-  while (!isEmpty(scanner.current)) {
+  while (scanner.current) {
     const char = scanner.next();
 
     if (char === Char.BackSlash) {
@@ -460,7 +460,7 @@ export function parseIntegerOrDecimal(
     scanner.next();
   }
 
-  if (isEmpty(scanner.current)) {
+  if (!scanner.current) {
     throw SyntaxError(messenger(Type.Integer + " | " + Type.Dictionary));
   }
 
@@ -468,7 +468,7 @@ export function parseIntegerOrDecimal(
     throw SyntaxError(messenger(Type.Integer + " | " + Type.Dictionary));
   }
 
-  while (!isEmpty(scanner.current)) {
+  while (scanner.current) {
     const char = scanner.next();
 
     if (reDigit.test(char)) {
@@ -613,7 +613,7 @@ export function parseKey(input: string): Parsed<string> {
 
   const scanner = new Scanner(input);
 
-  while (!isEmpty(scanner.current)) {
+  while (scanner.current) {
     const first = scanner.first;
     if (
       !(Char.Hyphen === first || Char.Period === first || Char.Star === first ||
@@ -651,7 +651,7 @@ export function parseParameters(input: string): Parsed<Parameters> {
   const scanner = new Scanner(input);
   const parameters = new Map<string, BareItem>();
 
-  while (!isEmpty(scanner.current)) {
+  while (scanner.current) {
     if (scanner.first !== Char.SemiColon) break;
 
     scanner.next();
@@ -706,7 +706,7 @@ export function parseInnerList(input: string): Parsed<InnerList> {
 
   const innerLists: Item[] = [];
 
-  while (!isEmpty(scanner.current)) {
+  while (scanner.current) {
     scanner.current = trimStart(scanner.current);
 
     if (scanner.first === Char.RParen) {

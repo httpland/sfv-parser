@@ -1,3 +1,11 @@
+## [1.0.1-beta.1](https://github.com/httpland/sfv-parser/compare/1.0.0...1.0.1-beta.1) (2023-04-09)
+
+
+### Performance Improvements
+
+* **parse:** remove poorly performing external functions ([7eb2239](https://github.com/httpland/sfv-parser/commit/7eb223916844b3c58ff624e0528f39c9f1d05762))
+* **utils:** improve getting first element algolithm ([7761215](https://github.com/httpland/sfv-parser/commit/77612150e36366b0f7d5f01a7a166fda21eca9d5))
+
 # 1.0.0 (2023-04-08)
 
 

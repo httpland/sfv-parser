@@ -16,8 +16,8 @@ import {
   String,
   Token,
 } from "./types.ts";
-import { decode, head, last } from "./deps.ts";
-import { decimalPlaces, divideBy, Scanner, trimStart } from "./utils.ts";
+import { decode } from "./deps.ts";
+import { decimalPlaces, divideBy, head, Scanner, trimStart } from "./utils.ts";
 import {
   Bool,
   Char,
@@ -507,7 +507,7 @@ export function parseIntegerOrDecimal(
     };
   }
 
-  if (last(input_number) === Char.Period) {
+  if (input_number.endsWith(Char.Period)) {
     throw SyntaxError(messenger(Type.Integer + " | " + Type.Dictionary));
   }
 

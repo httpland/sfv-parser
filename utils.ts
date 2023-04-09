@@ -2,7 +2,7 @@
 // This module is browser compatible.
 
 import { Char, Type } from "./constants.ts";
-import { head, isString } from "./deps.ts";
+import { isString } from "./deps.ts";
 import { type SfNode } from "./types.ts";
 
 /** Scanner for character. */
@@ -41,9 +41,7 @@ export function divideBy(
 ): null | [head: string, tail: string] {
   const index = input.indexOf(separator);
 
-  if (index < 0) {
-    return null;
-  }
+  if (index < 0) return null;
 
   const head = input.slice(0, index);
   const tail = input.slice(index + separator.length);
@@ -94,4 +92,8 @@ export function isTrue(
   input: SfNode,
 ): input is { type: Type.Boolean; value: true } {
   return input.type === Type.Boolean && input.value === true;
+}
+
+export function head(input: string): string {
+  return input[0] ?? "";
 }

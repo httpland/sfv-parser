@@ -41,25 +41,10 @@ export const makeOptions = (version: string): BuildOptions => ({
   },
   packageManager: "pnpm",
   mappings: {
-    "https://deno.land/x/isx@1.1.1/iterable/is_empty.ts": {
-      name: "@miyauci/isx",
-      version: "1.1.1",
-      subPath: "iterable/is_empty",
-    },
     "https://deno.land/x/isx@1.1.1/is_string.ts": {
       name: "@miyauci/isx",
       version: "1.1.1",
       subPath: "is_string",
-    },
-    "https://deno.land/x/prelude_js@1.1.0/head.ts": {
-      name: "@miyauci/prelude",
-      version: "1.1.0",
-      subPath: "head.js",
-    },
-    "https://deno.land/x/prelude_js@1.1.0/last.ts": {
-      name: "@miyauci/prelude",
-      version: "1.1.0",
-      subPath: "last.js",
     },
     "https://esm.sh/round-half-even@1.3.0?pin=v114": {
       name: "round-half-even",

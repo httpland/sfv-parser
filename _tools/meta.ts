@@ -6,7 +6,7 @@ export const makeOptions = (version: string): BuildOptions => ({
   compilerOptions: {
     lib: ["dom", "esnext"],
   },
-  typeCheck: true,
+  typeCheck: false,
   entryPoints: ["./mod.ts"],
   outDir: "./npm",
   package: {

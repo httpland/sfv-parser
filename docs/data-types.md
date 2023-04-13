@@ -45,9 +45,8 @@ interface Dictionary {
 }
 ```
 
-An ordered map is represented by an array of key and value entries.
-
-See [Why entries](#why-entries) for why this was chosen.
+An [ordered map](https://infra.spec.whatwg.org/#ordered-map) is represented by
+an array of key and value entries.
 
 ### InnerList
 
@@ -182,24 +181,3 @@ import type {
 
 type Sfv = Dictionary | Item | List;
 ```
-
-## Why entries
-
-The array of entry was chosen as the data structure to represent an ordered list
-of key/value pairs.
-
-It is an easy-to-use, easy-to-define (if a bit nested) data structure.
-
-Order can also be expressed by the order of the entries.
-
-Another data structure that can be used in similar situations is an object
-(Record). This structure can represent key/value pairs without nesting, but it
-is not as expressive in terms of the order of these pairs.
-
-Object guarantees the order of properties from ES6, but semantically it does not
-represent an ordered map. It was rejected because of its strong dependence on
-the order of properties.
-
-Probably the best way to represent an ordered map in JavaScript is with `Map`.
-However, there is no literal. Also, `Map` is not common as part of the
-interface, so it was rejected.

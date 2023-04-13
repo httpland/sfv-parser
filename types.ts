@@ -66,9 +66,11 @@ export class InnerList implements SfNode {
    * const innerList = new InnerList([items, parameters]);
    * ```
    */
-  constructor(value: readonly [readonly Item[], Parameters]) {
+  constructor(value: readonly Item[] | readonly [readonly Item[], Parameters]) {
     this.type = Type.InnerList;
-    this.value = value;
+    this.value = isArray(value[0])
+      ? value as readonly [readonly Item[], Parameters]
+      : [value as readonly Item[], new Parameters()] as const;
   }
 }
 
@@ -156,10 +158,10 @@ export class Item implements SfNode {
    * ```
    */
   constructor(
-    value: readonly [bareItem: BareItem, parameters: Parameters],
+    value: readonly [bareItem: BareItem, parameters: Parameters] | BareItem,
   ) {
     this.type = Type.Item;
-    this.value = value;
+    this.value = isArray(value) ? value : [value, new Parameters()];
   }
 }
 

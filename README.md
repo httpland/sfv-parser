@@ -207,6 +207,18 @@ declare const parameters: Parameters;
 const innerList = new InnerList([items, parameters]);
 ```
 
+or,
+
+```ts
+import {
+  InnerList,
+  type Item,
+} from "https://deno.land/x/sfv_parser@$VERSION/types.ts";
+
+declare const items: Item[];
+const innerList = new InnerList(items);
+```
+
 yield:
 
 ```json
@@ -312,6 +324,19 @@ declare const bareItem: BareItem;
 declare const parameters: Parameters;
 
 const item = new Item([bareItem, parameters]);
+```
+
+or,
+
+```ts
+import {
+  type BareItem,
+  Item,
+} from "https://deno.land/x/sfv_parser@$VERSION/types.ts";
+
+declare const bareItem: BareItem;
+
+const item = new Item(bareItem);
 ```
 
 yield:

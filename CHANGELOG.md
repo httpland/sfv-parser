@@ -1,3 +1,11 @@
+# [1.1.0](https://github.com/httpland/sfv-parser/compare/1.0.1...1.1.0) (2023-04-14)
+
+
+### Features
+
+* **types:** accept no parameters as constractor args ([fc1ade1](https://github.com/httpland/sfv-parser/commit/fc1ade1cdf74e50936910935495a56dcdc41debb))
+* **types:** improve types to accept readonly ([c1075c5](https://github.com/httpland/sfv-parser/commit/c1075c55beb1854ceefb3a01c90bfe146a78ab4d))
+
 # [1.1.0-beta.1](https://github.com/httpland/sfv-parser/compare/1.0.1...1.1.0-beta.1) (2023-04-13)
 
 

@@ -63,6 +63,9 @@ import { reALPHA, reParamKey, reTchar, reVCHAR } from "./abnf.ts";
  *
  * assertEquals(stringifySfv(sfv), "sugar, tea, rum");
  * ```
+ *
+ * @throws {TypeError} If the input member of field is invalid format.
+ * @throws {RangeError} If the input member of field is invalid range.
  */
 export function stringifySfv(input: Sfv): string {
   /** Specification:
@@ -112,6 +115,10 @@ function _stringifyItemOrInnerList(input: Item | InnerList): string {
   return stringifyInnerList(input);
 }
 
+/**
+ * @throws {TypeError}
+ * @throws {RangeError}
+ */
 export function stringifyDictionary(input: Dictionary): string {
   /** Specification:
    * 1. Let output be an empty string.
@@ -136,6 +143,10 @@ export function stringifyDictionary(input: Dictionary): string {
   return out;
 }
 
+/**
+ * @throws {TypeError}
+ * @throws {RangeError}
+ */
 function _stringifyEntry([key, value]: Dictionary["value"][number]): string {
   const keyFormat = stringifyKey(key);
 

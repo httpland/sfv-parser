@@ -1,6 +1,7 @@
 // Copyright 2023-latest the httpland authors. All rights reserved. MIT license.
 // This module is browser compatible.
 
+import { isArray } from "./deps.ts";
 import { Type } from "./constants.ts";
 
 /** Node definition. */
@@ -49,7 +50,7 @@ export class List implements SfNode {
  */
 export class InnerList implements SfNode {
   readonly type: `${Type.InnerList}`;
-  readonly value: readonly [Item[], Parameters];
+  readonly value: readonly [readonly Item[], Parameters];
 
   /**
    * @example
@@ -65,9 +66,11 @@ export class InnerList implements SfNode {
    * const innerList = new InnerList([items, parameters]);
    * ```
    */
-  constructor(value: readonly [Item[], Parameters]) {
+  constructor(value: readonly Item[] | readonly [readonly Item[], Parameters]) {
     this.type = Type.InnerList;
-    this.value = value;
+    this.value = isArray(value[0])
+      ? value as readonly [readonly Item[], Parameters]
+      : [value as readonly Item[], new Parameters()] as const;
   }
 }
 
@@ -76,7 +79,7 @@ export class InnerList implements SfNode {
  */
 export class Parameters implements SfNode {
   readonly type: `${Type.Parameters}`;
-  readonly value: readonly [key: string, value: BareItem][];
+  readonly value: readonly (readonly [key: string, value: BareItem])[];
 
   /**
    * @example
@@ -94,11 +97,11 @@ export class Parameters implements SfNode {
    */
   constructor(
     value:
-      | [key: string, value: BareItem][]
+      | readonly (readonly [key: string, value: BareItem])[]
       | Record<string, BareItem> = [],
   ) {
     this.type = Type.Parameters;
-    this.value = Array.isArray(value) ? value : Object.entries(value);
+    this.value = isArray(value) ? value : Object.entries(value);
   }
 }
 
@@ -107,7 +110,7 @@ export class Parameters implements SfNode {
  */
 export class Dictionary implements SfNode {
   readonly type: `${Type.Dictionary}`;
-  readonly value: readonly [key: string, value: Item | InnerList][];
+  readonly value: readonly (readonly [key: string, value: Item | InnerList])[];
 
   /**
    * @example
@@ -124,11 +127,11 @@ export class Dictionary implements SfNode {
    */
   constructor(
     value:
-      | [key: string, value: Item | InnerList][]
+      | readonly (readonly [key: string, value: Item | InnerList])[]
       | Record<string, Item | InnerList> = [],
   ) {
     this.type = Type.Dictionary;
-    this.value = Array.isArray(value) ? value : Object.entries(value);
+    this.value = isArray(value) ? value : Object.entries(value);
   }
 }
 
@@ -155,10 +158,10 @@ export class Item implements SfNode {
    * ```
    */
   constructor(
-    value: readonly [bareItem: BareItem, parameters: Parameters],
+    value: readonly [bareItem: BareItem, parameters: Parameters] | BareItem,
   ) {
     this.type = Type.Item;
-    this.value = value;
+    this.value = isArray(value) ? value : [value, new Parameters()];
   }
 }
 

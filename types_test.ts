@@ -86,6 +86,13 @@ describe("Item", () => {
     );
   });
 
+  it("should accept bare item only", () => {
+    assertEquals(
+      new Item(new Boolean(false)),
+      new Item([new Boolean(false), new Parameters()]),
+    );
+  });
+
   it("should has value", () => {
     assertEquals(new Item([new Boolean(false), new Parameters()]).value, [
       new Boolean(false),
@@ -114,6 +121,26 @@ describe("InnerList", () => {
         new Parameters(),
       ]).type,
       Type.InnerList,
+    );
+  });
+
+  it("should accept array of item only", () => {
+    assertEquals(
+      new InnerList([[], new Parameters()]),
+      new InnerList([]),
+    );
+  });
+
+  it("should accept array of item only", () => {
+    assertEquals(
+      new InnerList([[
+        new Item(new Boolean(false)),
+        new Item(new Boolean(true)),
+      ], new Parameters()]),
+      new InnerList([
+        new Item(new Boolean(false)),
+        new Item(new Boolean(true)),
+      ]),
     );
   });
 

@@ -41,10 +41,15 @@ export const makeOptions = (version: string): BuildOptions => ({
   },
   packageManager: "pnpm",
   mappings: {
-    "https://deno.land/x/isx@1.1.1/is_string.ts": {
+    "https://deno.land/x/isx@1.3.0/is_string.ts": {
       name: "@miyauci/isx",
-      version: "1.1.1",
-      subPath: "is_string",
+      version: "1.3.0",
+      subPath: "is_string.js",
+    },
+    "https://deno.land/x/isx@1.3.0/is_array.ts": {
+      name: "@miyauci/isx",
+      version: "1.3.0",
+      subPath: "is_array.js",
     },
     "https://esm.sh/round-half-even@1.3.0?pin=v114": {
       name: "round-half-even",
